@@ -26,7 +26,7 @@
     <AlertDialogHeader>
       <AlertDialogTitle>Finish the game?</AlertDialogTitle>
       <AlertDialogDescription>
-        This will end the game, but you can continue playing later.
+        You can continue playing later.
       </AlertDialogDescription>
     </AlertDialogHeader>
     <AlertDialogFooter>
