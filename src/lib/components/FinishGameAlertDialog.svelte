@@ -20,7 +20,7 @@
 
 <AlertDialog>
   <AlertDialogTrigger class={buttonVariants({ variant: "default" })}>
-    End the game
+    Finish
   </AlertDialogTrigger>
   <AlertDialogContent>
     <AlertDialogHeader>

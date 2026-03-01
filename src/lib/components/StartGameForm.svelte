@@ -19,11 +19,11 @@
 </script>
 
 <form
-  class="card flex w-full max-w-80 flex-col items-center gap-4"
+  class="card flex w-full flex-col items-center gap-4"
   onsubmit={handleSubmit}
 >
   <div class="flex w-full justify-between space-y-2">
-    <Label>Max wrong attempts</Label>
+    <Label>Max consecutive wrong attempts</Label>
     <MaxAttemptsNativeSelect />
   </div>
   <div class="flex gap-2 *:w-25">
