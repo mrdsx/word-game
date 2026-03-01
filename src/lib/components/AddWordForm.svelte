@@ -37,9 +37,6 @@
       inputError.isError = false;
       inputError.message = "";
     },
-    onError: (error) => {
-      setErrorTrue(error.message);
-    },
   }));
 
   async function handleSubmit(event: Event): Promise<void> {
