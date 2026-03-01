@@ -1,3 +1,5 @@
-button {
-  @apply cursor-pointer;
+@reference "./globals.css";
+
+.card {
+  @apply border-border rounded-lg border p-6;
 }

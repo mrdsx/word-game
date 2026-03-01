@@ -1,13 +1,16 @@
 import { MAX_WORD_LENGTH, MIN_WORD_LENGTH } from "$lib/constants";
-import { isLowercaseOnly } from "$lib/utils";
+import { isLowercaseOnly, validateWordResponse } from "$lib/utils";
 import { persistentAtom } from "@nanostores/persistent";
 
-export const persistentWords = persistentAtom<string[]>("words", [], {
+export const words = persistentAtom<string[]>("words", [], {
   encode: JSON.stringify,
   decode: JSON.parse,
 });
 
-export function addWord(newWord: string): void {
+export async function addWord(
+  newWord: string,
+  assertWordExists: (word: string) => unknown,
+): Promise<void> {
   newWord = newWord.trim().toLowerCase();
 
   // assert easter eggs
@@ -26,7 +29,7 @@ export function addWord(newWord: string): void {
   }
 
   // assert main rule of word game
-  const lastWord = persistentWords.get()[0] ?? newWord[0];
+  const lastWord = words.get()[0] ?? newWord[0];
   const lastWordLastChar = lastWord[lastWord.length - 1];
   const newWordFirstChar = newWord[0];
 
@@ -39,13 +42,16 @@ export function addWord(newWord: string): void {
   if (!isLowercaseOnly(newWord)) {
     throw new Error("Only alphabet letters allowed");
   }
-  if (persistentWords.get().includes(newWord)) {
+  if (words.get().includes(newWord)) {
     throw new Error("Word already exists");
   }
 
-  persistentWords.set([newWord, ...persistentWords.get()]);
+  const wordResponse = await assertWordExists(newWord);
+  validateWordResponse(wordResponse);
+
+  words.set([newWord, ...words.get()]);
 }
 
 export function resetWords(): void {
-  persistentWords.set([]);
+  words.set([]);
 }
