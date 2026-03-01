@@ -21,7 +21,7 @@ export const gameState = persistentAtom<GameState>(
 
 export function startNewWordGame(): void {
   resetWords();
-  gameState.set({ ...gameState.get(), isPlaying: true });
+  gameState.set({ isPlaying: true, wrongAttempts: 0 });
 }
 
 export function startWordGame(): void {
