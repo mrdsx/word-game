@@ -25,7 +25,7 @@
   <div class="flex flex-col items-center gap-4">
     <header class="flex w-full justify-end space-x-2 p-3">
       <ToggleThemeButton />
-      <Button variant="outline">Log In</Button>
+      <Button variant="outline" href="/login">Log In</Button>
     </header>
 
     <Router />

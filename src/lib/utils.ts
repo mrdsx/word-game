@@ -1,17 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import z from "zod";
-
-const wordResponseSchema = z.array(
-  z.object({
-    word: z.string().min(1),
-    meanings: z.array(
-      z.object({
-        partOfSpeech: z.string(),
-      }),
-    ),
-  }),
-);
+import { wordResponseSchema } from "./schemas";
 
 export function cn(...inputs: ClassValue[]): string {
   return twMerge(clsx(inputs));
