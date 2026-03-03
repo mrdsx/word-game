@@ -1,15 +1,25 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button";
   import { Input } from "$lib/components/ui/input";
+  import LoadingSwap from "$lib/components/ui/loading-swap/loading-swap.svelte";
   import { actionCodeSettings, auth } from "$lib/firebase";
   import { navigate } from "$lib/router";
   import { emailSchema } from "$lib/schemas";
+  import { createMutation } from "@tanstack/svelte-query";
   import { sendSignInLinkToEmail } from "firebase/auth";
   import { setUserEmail } from "../../store/authState";
   import { userState } from "../../store/userState";
 
   let email = $state("");
   let submitError: string | null = $state(null);
+
+  const userLogin = createMutation(() => ({
+    mutationKey: ["login"],
+    mutationFn: async () => {
+      await sendSignInLinkToEmail(auth, email, actionCodeSettings);
+      setUserEmail(email);
+    },
+  }));
 
   $effect(() => {
     if ($userState.currentUser !== null) {
@@ -26,8 +36,7 @@
       return;
     }
 
-    setUserEmail(email);
-    await sendSignInLinkToEmail(auth, email, actionCodeSettings);
+    userLogin.mutate();
   }
 </script>
 
@@ -46,5 +55,7 @@
       <p class="text-destructive self-start text-sm">{submitError}</p>
     {/if}
   </fieldset>
-  <Button class="w-full" type="submit">Log In</Button>
+  <Button class="w-full" type="submit" disabled={userLogin.isPending}>
+    <LoadingSwap isLoading={userLogin.isPending}>Log In</LoadingSwap>
+  </Button>
 </form>

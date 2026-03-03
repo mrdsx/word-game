@@ -1,5 +1,6 @@
 <script lang="ts" module>
   import ToggleThemeButton from "$lib/components/ToggleThemeButton.svelte";
+  import { Toaster } from "$lib/components/ui/sonner";
   import UserArea from "$lib/components/UserArea.svelte";
   import { auth } from "$lib/firebase";
   import { QueryClient, QueryClientProvider } from "@tanstack/svelte-query";
@@ -44,4 +45,5 @@
 
     <Router />
   </div>
+  <Toaster richColors />
 </QueryClientProvider>

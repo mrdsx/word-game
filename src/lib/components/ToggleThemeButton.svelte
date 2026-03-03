@@ -5,7 +5,6 @@
 </script>
 
 <Button
-  size="icon"
   variant="outline"
   onclick={() => ($theme = $theme === "dark" ? "light" : "dark")}
 >

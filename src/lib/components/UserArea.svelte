@@ -2,7 +2,7 @@
   import { auth } from "$lib/firebase";
   import { navigate } from "$lib/router";
   import { signOut } from "firebase/auth";
-  import { LogOutIcon, UserIcon } from "lucide-svelte";
+  import { HouseIcon, LogOutIcon, UserIcon } from "lucide-svelte";
   import { userState } from "../../store/userState";
   import { Button, buttonVariants } from "./ui/button";
   import {
@@ -25,12 +25,20 @@
   <Button variant="outline" href="/login">Log In</Button>
 {:else}
   <DropdownMenu>
-    <DropdownMenuTrigger class={buttonVariants({ variant: "outline" })}>
-      {$userState.currentUser.displayName ?? "User"}
+    <DropdownMenuTrigger
+      class={buttonVariants({
+        variant: "outline",
+      })}
+    >
+      <UserIcon />
     </DropdownMenuTrigger>
     <DropdownMenuContent class="w-50" align="end">
       <DropdownMenuLabel>My Account</DropdownMenuLabel>
       <DropdownMenuGroup>
+        <DropdownMenuItem onclick={() => navigate("/")}>
+          <HouseIcon />
+          Home
+        </DropdownMenuItem>
         <DropdownMenuItem onclick={() => navigate("/profile")}>
           <UserIcon />
           Profile

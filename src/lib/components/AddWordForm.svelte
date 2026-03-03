@@ -4,27 +4,23 @@
   import { MAX_WORD_LENGTH } from "$lib/constants";
   import { declineWord } from "$lib/utils";
   import { createMutation } from "@tanstack/svelte-query";
-  import { LoaderCircleIcon } from "lucide-svelte";
   import { assertWordExists } from "../../api/word";
   import {
     incrementWrongAttempts,
     resetWrongAttempts,
   } from "../../store/gameState";
   import { addWord, resetWords, words } from "../../store/words";
+  import { LoadingSwap } from "./ui/loading-swap";
 
   let canAddWords: boolean = $state(true);
   let input: HTMLInputElement | null = $state(null);
-  let inputError = $state({
-    isError: false,
-    message: "",
-  });
+  let inputError: string | null = $state(null);
 
   function setErrorTrue(message: string): void {
-    inputError.isError = true;
-    inputError.message = message;
+    inputError = message;
     incrementWrongAttempts(() => {
       const enteredWords = words.get().length;
-      inputError.message = `Game over. Your result is ${enteredWords} ${declineWord(enteredWords, ["word", "words"])}.`;
+      inputError = `Game over. Your result is ${enteredWords} ${declineWord(enteredWords, ["word", "words"])}.`;
       resetWords();
     });
   }
@@ -34,8 +30,7 @@
       return await assertWordExists(word);
     },
     onMutate: () => {
-      inputError.isError = false;
-      inputError.message = "";
+      inputError = null;
     },
   }));
 
@@ -64,19 +59,15 @@
     <Input
       placeholder="Enter the word"
       maxlength={MAX_WORD_LENGTH}
-      aria-invalid={inputError.isError}
+      aria-invalid={inputError !== null}
       disabled={!canAddWords}
       bind:ref={input}
     />
-    {#if inputError.isError}
-      <p class="text-destructive text-sm">{inputError.message}</p>
+    {#if inputError !== null}
+      <p class="text-destructive text-sm">{inputError}</p>
     {/if}
   </div>
   <Button class="w-25" type="submit" disabled={word.isPending || !canAddWords}>
-    {#if word.isPending}
-      <LoaderCircleIcon class="animate-spin" /> Adding
-    {:else}
-      Add
-    {/if}
+    <LoadingSwap isLoading={word.isPending} fallback="Adding">Add</LoadingSwap>
   </Button>
 </form>
