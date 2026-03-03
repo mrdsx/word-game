@@ -47,7 +47,7 @@
   <div class="flex flex-col items-center gap-4">
     <header class="flex w-full justify-end space-x-2 p-3">
       <ToggleThemeButton />
-      {#if $userState.user === null}
+      {#if $userState.currentUser === null}
         <Button variant="outline" href="/login">Log In</Button>
       {:else}
         <Button variant="outline" onclick={handleLogout}>Log Out</Button>

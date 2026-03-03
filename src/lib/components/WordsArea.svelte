@@ -23,7 +23,7 @@
         Words: {$words.length}
       </p>
       <p class="text-destructive">
-        Mistakes: {$gameState.wrongAttempts}/{$gamePreferences.maxWrongAttempts}
+        Mistakes: {$gameState.wrongAttempts}/{$gamePreferences.currentMaxWrongAttempts}
       </p>
     </div>
   {/if}

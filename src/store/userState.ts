@@ -2,13 +2,13 @@ import type { User } from "firebase/auth";
 import { atom } from "nanostores";
 
 type UserState = {
-  user: User | null;
+  currentUser: User | null;
 };
 
 export const userState = atom<UserState>({
-  user: null,
+  currentUser: null,
 });
 
-export function setUser(user: UserState["user"]): void {
-  userState.set({ ...userState.get(), user });
+export function setUser(user: UserState["currentUser"]): void {
+  userState.set({ ...userState.get(), currentUser: user });
 }

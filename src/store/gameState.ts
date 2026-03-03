@@ -1,5 +1,5 @@
 import { persistentAtom } from "@nanostores/persistent";
-import { gamePreferences } from "./gamePreferences";
+import { gamePreferences, setCurrentMaxWrongAttempts } from "./gamePreferences";
 import { resetWords } from "./words";
 
 type GameState = {
@@ -22,6 +22,8 @@ export const gameState = persistentAtom<GameState>(
 export function startNewWordGame(): void {
   resetWords();
   gameState.set({ isPlaying: true, wrongAttempts: 0 });
+  const maxWrongAttempts = gamePreferences.get().maxWrongAttempts;
+  setCurrentMaxWrongAttempts(maxWrongAttempts);
 }
 
 export function startWordGame(): void {
@@ -34,7 +36,7 @@ export function finishWordGame(): void {
 
 export function incrementWrongAttempts(onFinish?: () => void): void {
   const wrongAttempts = gameState.get().wrongAttempts + 1;
-  const maxWrongAttempts = gamePreferences.get().maxWrongAttempts;
+  const maxWrongAttempts = gamePreferences.get().currentMaxWrongAttempts;
 
   if (wrongAttempts >= maxWrongAttempts) {
     onFinish?.();
