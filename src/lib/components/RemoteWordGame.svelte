@@ -104,7 +104,9 @@
       mistakes: 0,
       words: [],
     };
-    await setDoc(doc(db, "singlePlayerWordGames", userUID), newWordGame);
+    await setDoc(doc(db, "singlePlayerWordGames", userUID), newWordGame, {
+      merge: true,
+    });
     await navigate("/user/game");
   }
 </script>
