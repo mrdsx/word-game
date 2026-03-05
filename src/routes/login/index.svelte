@@ -52,13 +52,10 @@
   }
 </script>
 
-<form
-  class="card mt-10 flex w-full flex-col items-center gap-4"
-  onsubmit={handleSubmit}
->
+<form class="card auth-form" onsubmit={handleSubmit}>
   <h1 class="text-lg font-semibold">Login to your account</h1>
-  <fieldset class="w-full space-y-1">
-    <Label class="mb-2" for="email">Email</Label>
+  <fieldset class="form-fieldset">
+    <Label for="email">Email</Label>
     <Input
       id="email"
       placeholder="Enter your email"
@@ -69,8 +66,8 @@
       <p class="text-destructive text-sm">{emailError}</p>
     {/if}
   </fieldset>
-  <fieldset class="w-full space-y-1">
-    <Label class="mb-2" for="password">Password</Label>
+  <fieldset class="form-fieldset">
+    <Label for="password">Password</Label>
     <Input
       id="password"
       type="password"
@@ -91,3 +88,11 @@
     </Button>.
   </p>
 </form>
+
+<style>
+  @import "tailwindcss";
+
+  .form-fieldset {
+    @apply w-full space-y-1;
+  }
+</style>
