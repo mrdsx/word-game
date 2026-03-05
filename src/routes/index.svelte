@@ -1,6 +1,6 @@
 <script lang="ts">
   import LocalWordGame from "$lib/components/LocalWordGame.svelte";
-  import RemoteWordGame from "$lib/components/RemoteWordGame.svelte";
+  import SinglePlayerWordGame from "$lib/components/SinglePlayerWordGame.svelte";
   import { userState } from "../store/userState";
 </script>
 
@@ -11,6 +11,6 @@
   {#if $userState.currentUser === null}
     <LocalWordGame />
   {:else}
-    <RemoteWordGame />
+    <SinglePlayerWordGame />
   {/if}
 </div>
