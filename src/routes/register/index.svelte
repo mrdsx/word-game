@@ -5,32 +5,38 @@
   import LoadingSwap from "$lib/components/ui/loading-swap/loading-swap.svelte";
   import { auth } from "$lib/firebase";
   import { navigate } from "$lib/router";
-  import { emailSchema, loginPasswordSchema } from "$lib/schemas";
+  import { emailSchema, signUpPasswordSchema } from "$lib/schemas";
+  import { mapFirebaseErrorCode } from "$lib/utils";
   import { createMutation } from "@tanstack/svelte-query";
-  import { signInWithEmailAndPassword } from "firebase/auth";
+  import {
+    createUserWithEmailAndPassword,
+    type AuthError,
+  } from "firebase/auth";
   import { toast } from "svelte-sonner";
-  import { userState } from "../../store/userState";
 
   let email = $state("");
   let password = $state("");
   let emailError: string | null = $state(null);
   let passwordError: string | null = $state(null);
 
-  const userLogin = createMutation(() => ({
-    mutationKey: ["login"],
+  const userSignUp = createMutation(() => ({
+    mutationKey: ["signup"],
     mutationFn: async () => {
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      );
+      return userCredential;
     },
-    onError: () => {
-      toast.error("Wrong email or password.");
+    onSuccess: () => {
+      navigate("/register/verify");
+    },
+    onError: (error: AuthError) => {
+      const firebaseError = mapFirebaseErrorCode(error.code);
+      toast.error(firebaseError ?? "Failed to sign up.");
     },
   }));
-
-  $effect(() => {
-    if ($userState.currentUser !== null) {
-      navigate("/");
-    }
-  });
 
   function handleSubmit(event: Event): void {
     emailError = null;
@@ -38,7 +44,7 @@
     event.preventDefault();
 
     const emailParse = emailSchema.safeParse(email);
-    const passwordParse = loginPasswordSchema.safeParse(password);
+    const passwordParse = signUpPasswordSchema.safeParse(password);
     if (!emailParse.success) {
       emailError = "Invalid email.";
     }
@@ -47,7 +53,7 @@
     }
 
     if (emailError === null && passwordError === null) {
-      userLogin.mutate();
+      userSignUp.mutate();
     }
   }
 </script>
@@ -56,7 +62,7 @@
   class="card mt-10 flex w-full max-w-90 flex-col items-center gap-4"
   onsubmit={handleSubmit}
 >
-  <h1 class=" text-lg font-semibold">Login to your account</h1>
+  <h1 class=" text-lg font-semibold">Create new account</h1>
   <fieldset class="w-full space-y-1">
     <Label class="mb-2" for="email">Email</Label>
     <Input
@@ -81,12 +87,7 @@
       <p class="text-destructive text-sm">{passwordError}</p>
     {/if}
   </fieldset>
-  <Button class="w-full" type="submit" disabled={userLogin.isPending}>
-    <LoadingSwap isLoading={userLogin.isPending}>Log In</LoadingSwap>
+  <Button class="w-full" type="submit" disabled={userSignUp.isPending}>
+    <LoadingSwap isLoading={userSignUp.isPending}>Sign Up</LoadingSwap>
   </Button>
-  <p class=" self-start text-sm">
-    Don't have account yet? Create new <Button href="/register" variant="link">
-      here
-    </Button>.
-  </p>
 </form>

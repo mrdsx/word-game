@@ -1,5 +1,5 @@
 @reference "./globals.css";
 
 .card {
-  @apply border-border rounded-lg border p-6;
+  @apply border-border bg-card rounded-lg border p-6;
 }

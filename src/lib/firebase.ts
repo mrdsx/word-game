@@ -3,12 +3,18 @@ import {
   type FirebaseApp,
   type FirebaseOptions,
 } from "firebase/app";
-import { connectAuthEmulator, getAuth, type Auth } from "firebase/auth";
+import {
+  connectAuthEmulator,
+  getAuth,
+  type ActionCodeSettings,
+  type Auth,
+} from "firebase/auth";
 import {
   connectFirestoreEmulator,
   getFirestore,
   type Firestore,
 } from "firebase/firestore";
+import { FRONTEND_URL } from "./constants";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -18,6 +24,11 @@ const firebaseConfig = {
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 } satisfies FirebaseOptions;
+
+export const actionCodeSettings = {
+  url: FRONTEND_URL,
+  handleCodeInApp: true,
+} satisfies ActionCodeSettings;
 
 export const firebase: FirebaseApp = initializeApp(firebaseConfig);
 export const auth: Auth = getAuth(firebase);

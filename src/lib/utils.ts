@@ -32,6 +32,15 @@ export function isLowercaseOnly(str: string): boolean {
   return /^[a-z]+$/.test(str);
 }
 
+export function mapFirebaseErrorCode(str: string): string | undefined {
+  switch (str) {
+    case "auth/email-already-in-use":
+      return "Email is already used.";
+    default:
+      return undefined;
+  }
+}
+
 export function normalizeWord(word: string): string {
   return word.toLowerCase().trim();
 }
