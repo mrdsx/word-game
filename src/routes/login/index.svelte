@@ -72,7 +72,8 @@
   <fieldset class="w-full space-y-1">
     <Label class="mb-2" for="password">Password</Label>
     <Input
-      id="email"
+      id="password"
+      type="password"
       placeholder="Enter your password"
       aria-invalid={passwordError !== null}
       bind:value={password}
