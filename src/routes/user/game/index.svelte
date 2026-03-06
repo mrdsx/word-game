@@ -1,7 +1,6 @@
 <script lang="ts">
   import { authState } from "$features/auth/stores/authState";
   import { fetchDictionaryWord } from "$features/dictionary/api";
-  import { addWordUseCase } from "$features/dictionary/useCases";
   import { validateDictionaryWord } from "$features/dictionary/utils";
   import { wordGameQueryKeys } from "$features/single-player-word-game/queryKeys";
   import type { SinglePlayerWordGame } from "$features/single-player-word-game/types";
@@ -10,6 +9,7 @@
     MAX_WORD_LENGTH,
     MIN_WORD_LENGTH,
   } from "$features/word-game/constants";
+  import { addWordUseCase } from "$features/word-game/useCases";
   import { normalizeWord, validateWord } from "$features/word-game/utils";
   import {
     AlertDialog,

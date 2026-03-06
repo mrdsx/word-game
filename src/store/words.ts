@@ -1,7 +1,7 @@
 import { fetchDictionaryWord } from "$features/dictionary/api";
-import { addWordUseCase } from "$features/dictionary/useCases";
 import { validateDictionaryWord } from "$features/dictionary/utils";
 import type { Word } from "$features/word-game/types";
+import { addWordUseCase } from "$features/word-game/useCases";
 import { normalizeWord, validateWord } from "$features/word-game/utils";
 import { persistentAtom } from "@nanostores/persistent";
 
