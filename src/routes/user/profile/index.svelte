@@ -26,6 +26,9 @@
 
       await updateProfile(user, { displayName: nickname.trim() });
     },
+    onSuccess: () => {
+      toast.success("Successfully updated profile.");
+    },
     onError: () => {
       toast.error("Failed to update profile.");
     },
