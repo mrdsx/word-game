@@ -219,7 +219,7 @@
 </form>
 <div class="flex w-full flex-col items-center gap-2">
   {#if wordGame === undefined}
-    <Spinner class="size-5" />
+    <Spinner class="my-1 size-5" />
   {:else if wordGame === null}
     <p class="text-destructive">Failed to load words.</p>
   {:else if wordGame.words.length > 0}
