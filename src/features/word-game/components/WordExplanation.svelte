@@ -2,6 +2,7 @@
   import { fetchDictionaryWord } from "$features/dictionary/api";
   import { dictionaryWordQueryKeys } from "$features/dictionary/queryKeys";
   import { dictionaryWordSchema } from "$features/dictionary/schemas";
+  import { flatDictionaryWordDefinitions } from "$features/dictionary/utils";
   import { buttonVariants } from "$lib/components/ui/button";
   import {
     Sheet,
@@ -44,17 +45,8 @@
     const words = $state.snapshot(dictionaryWord);
     if (words === undefined) return;
 
-    const result: string[] = [];
-    words.forEach((word) => {
-      word.meanings.forEach((meaning) => {
-        meaning.definitions.forEach((obj) => {
-          if (meaning.partOfSpeech === "noun") {
-            result.push(obj.definition);
-          }
-        });
-      });
-    });
-    wordDefinitions = structuredClone(result);
+    const definitions: string[] = flatDictionaryWordDefinitions(words);
+    wordDefinitions = structuredClone(definitions);
   });
 
   function handleSheetOpenChange(): void {
