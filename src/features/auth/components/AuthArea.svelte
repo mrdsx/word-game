@@ -1,11 +1,7 @@
 <script lang="ts">
-  import { authState } from "$features/auth/stores/authState";
+  import { authState } from "$features/auth/stores";
   import { localWordGame } from "$features/local-word-game/stores";
-  import { auth } from "$lib/firebase";
-  import { navigate } from "$lib/router";
-  import { signOut } from "firebase/auth";
-  import { HouseIcon, LogOutIcon, UserIcon } from "lucide-svelte";
-  import { Button, buttonVariants } from "../../../lib/components/ui/button";
+  import { Button, buttonVariants } from "$lib/components/ui/button";
   import {
     DropdownMenu,
     DropdownMenuContent,
@@ -14,7 +10,11 @@
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-  } from "../../../lib/components/ui/dropdown-menu";
+  } from "$lib/components/ui/dropdown-menu";
+  import { auth } from "$lib/firebase";
+  import { navigate } from "$lib/router";
+  import { signOut } from "firebase/auth";
+  import { HouseIcon, LogOutIcon, UserIcon } from "lucide-svelte";
 
   async function handleLogout(): Promise<void> {
     localWordGame.set({ ...localWordGame.get(), isPlaying: false });

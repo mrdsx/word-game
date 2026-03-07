@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { authState } from "$features/auth/stores/authState";
+  import { authState } from "$features/auth/stores";
   import { LocalWordGame } from "$features/local-word-game/components";
   import { SinglePlayerWordGame } from "$features/single-player-word-game/components";
 </script>

@@ -1,14 +1,24 @@
 <script lang="ts">
-  import { words } from "$features/local-word-game/stores";
-  import { WordsList } from "$features/word-game/components";
+  import {
+    localWordGame,
+    localWordGamePreferences,
+    words,
+  } from "$features/local-word-game/stores";
+  import { WordGameInfo, WordsList } from "$features/word-game/components";
+  import { reverseWords } from "$features/word-game/utils";
   import LocalWordGameActions from "./LocalWordGameActions.svelte";
-  import LocalWordGameInfo from "./LocalWordGameInfo.svelte";
 
-  const reversedWords = $derived([...$words].reverse());
+  const reversedWords = $derived(reverseWords($words));
 </script>
 
 <div class="flex w-full flex-col items-center gap-2">
-  <LocalWordGameInfo />
+  {#if $words.length > 0}
+    <WordGameInfo
+      words={$words}
+      mistakes={$localWordGame.mistakes}
+      maxMistakes={$localWordGamePreferences.currentMaxMistakes}
+    />
+  {/if}
   <WordsList words={reversedWords} />
-  <LocalWordGameActions />
+  <LocalWordGameActions class="mt-2" />
 </div>

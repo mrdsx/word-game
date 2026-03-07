@@ -2,7 +2,7 @@ import { WORD_GAME_QUERY_KEY } from "$features/word-game/constants";
 
 const WORD_GAME_QUERY_KEYS = [WORD_GAME_QUERY_KEY, "singlePlayer"] as const;
 
-export const wordGameQueryKeys = {
+export const singlePlayerWordGameQueryKeys = {
   singlePlayer: WORD_GAME_QUERY_KEYS,
   wordGameMistakes: [...WORD_GAME_QUERY_KEYS, "mistakes"],
   startWordGame: [...WORD_GAME_QUERY_KEYS, "start"],

@@ -1,6 +1,6 @@
 <script lang="ts" module>
   import { AuthArea } from "$features/auth/components";
-  import { setUser } from "$features/auth/stores/authState";
+  import { setUser } from "$features/auth/stores";
   import { stopWordGame } from "$features/local-word-game/stores";
   import ToggleThemeButton from "$lib/components/ToggleThemeButton.svelte";
   import { Toaster } from "$lib/components/ui/sonner";

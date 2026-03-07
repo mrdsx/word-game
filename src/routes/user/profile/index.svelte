@@ -1,31 +1,20 @@
 <script lang="ts">
-  import { authState } from "$features/auth/stores/authState";
-  import { userQueryKeys } from "$features/user/queryKeys";
+  import { authState } from "$features/auth/stores";
+  import { MAX_NICKNAME_LENGTH } from "$features/user/constants";
+  import { userProfileMutationOptions } from "$features/user/mutationOptions";
+  import { normalizeNickname, validateNickname } from "$features/user/utils";
   import { Button } from "$lib/components/ui/button";
   import { Input } from "$lib/components/ui/input";
   import { Label } from "$lib/components/ui/label";
   import { LoadingSwap } from "$lib/components/ui/loading-swap";
   import { createMutation } from "@tanstack/svelte-query";
-  import { updateProfile, type User } from "firebase/auth";
   import { toast } from "svelte-sonner";
 
   let nickname = $state("");
+  let nicknameError: string | null = $state(null);
 
-  const userProfile = createMutation(() => ({
-    mutationKey: userQueryKeys.profile,
-    mutationFn: async ({
-      user,
-      nickname,
-    }: {
-      user: User;
-      nickname: string;
-    }) => {
-      if (nickname.length < 3 || nickname.length > 20) {
-        return;
-      }
-
-      await updateProfile(user, { displayName: nickname.trim() });
-    },
+  const userProfileMutation = createMutation(() => ({
+    ...userProfileMutationOptions,
     onSuccess: () => {
       toast.success("Successfully updated profile.");
     },
@@ -40,10 +29,26 @@
 
   function handleSubmit(event: Event): void {
     event.preventDefault();
-    const user = authState.get().currentUser;
-    if (user === null) return;
+    nicknameError = null;
 
-    userProfile.mutate({ user, nickname });
+    const user = authState.get().currentUser;
+    if (user === null) {
+      toast.error("Not authenticated.");
+      return;
+    } else if (user.displayName === nickname) {
+      toast.warning("No changes.");
+      return;
+    }
+
+    const normalized = normalizeNickname(nickname);
+    try {
+      validateNickname(normalized);
+      userProfileMutation.mutate({ user, nickname });
+    } catch (error) {
+      if (error instanceof Error) {
+        nicknameError = error.message;
+      }
+    }
   }
 </script>
 
@@ -56,13 +61,16 @@
     <Input
       id="display-name"
       placeholder="Enter your nickname"
-      minlength={3}
-      maxlength={20}
+      maxlength={MAX_NICKNAME_LENGTH}
+      aria-invalid={nicknameError !== null}
       bind:value={nickname}
     />
+    {#if nicknameError !== null}
+      <p class="text-destructive text-sm">{nicknameError}</p>
+    {/if}
   </fieldset>
-  <Button type="submit" disabled={userProfile.isPending}>
-    <LoadingSwap isLoading={userProfile.isPending} fallback="Saving">
+  <Button type="submit" disabled={userProfileMutation.isPending}>
+    <LoadingSwap isLoading={userProfileMutation.isPending} fallback="Saving">
       Save changes
     </LoadingSwap>
   </Button>

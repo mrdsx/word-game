@@ -1,12 +1,17 @@
 import { isLowercaseOnly } from "$lib/utils";
 import { MAX_WORD_LENGTH, MIN_WORD_LENGTH } from "./constants";
 import { WordGameError } from "./exceptions";
+import type { Word } from "./types";
 
-export function normalizeWord(word: string): string {
+export function normalizeWord(word: Word): Word {
   return word.toLowerCase().trim();
 }
 
-export function validateWord(word: string, words: string[]): void {
+export function reverseWords(words: readonly Word[]): Word[] {
+  return [...words].reverse();
+}
+
+export function validateWord(word: Word, words: Word[]): void {
   // assert easter eggs
   if (word === "mrdsx") {
     throw new Error("yo, wassup?");

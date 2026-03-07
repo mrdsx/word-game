@@ -1,14 +1,5 @@
 <script lang="ts">
-  import { authState } from "$features/auth/stores/authState";
-  import { wordGameQueryKeys } from "$features/single-player-word-game/queryKeys";
-  import type {
-    SinglePlayerWordGame,
-    SinglePlayerWordGamePreferences,
-  } from "$features/single-player-word-game/types";
-  import { db } from "$lib/firebase";
-  import { navigate } from "$lib/router";
-  import { createMutation, createQuery } from "@tanstack/svelte-query";
-  import { doc, DocumentSnapshot, getDoc, setDoc } from "firebase/firestore";
+  import { authState } from "$features/auth/stores";
   import {
     AlertDialog,
     AlertDialogAction,
@@ -19,15 +10,25 @@
     AlertDialogHeader,
     AlertDialogTitle,
     AlertDialogTrigger,
-  } from "../../../lib/components/ui/alert-dialog";
-  import { Button, buttonVariants } from "../../../lib/components/ui/button";
-  import { Label } from "../../../lib/components/ui/label";
-  import { LoadingSwap } from "../../../lib/components/ui/loading-swap";
+  } from "$lib/components/ui/alert-dialog";
+  import { Button, buttonVariants } from "$lib/components/ui/button";
+  import { Label } from "$lib/components/ui/label";
+  import { LoadingSwap } from "$lib/components/ui/loading-swap";
   import {
     NativeSelect,
     NativeSelectOption,
-  } from "../../../lib/components/ui/native-select";
-  import { Skeleton } from "../../../lib/components/ui/skeleton";
+  } from "$lib/components/ui/native-select";
+  import { Skeleton } from "$lib/components/ui/skeleton";
+  import { db } from "$lib/firebase";
+  import { navigate } from "$lib/router";
+  import { createMutation, createQuery } from "@tanstack/svelte-query";
+  import { doc, setDoc } from "firebase/firestore";
+  import { toast } from "svelte-sonner";
+  import { startNewGameMutationOptions } from "../mutationOptions";
+  import {
+    singlePlayerWordGamePreferencesQueryOptions,
+    singlePlayerWordGameQueryOptions,
+  } from "../queryOptions";
 
   // TODO: refactor
 
@@ -36,67 +37,31 @@
   let maxMistakesSelectRef: HTMLSelectElement | null = $state(null);
   const userUID = $derived($authState.currentUser?.uid);
 
-  const wordGame = createQuery(() => ({
-    queryKey: wordGameQueryKeys.singlePlayer,
-    queryFn: async () => {
-      const userUID = authState.get().currentUser?.uid ?? "";
-      const singlePlayerWordGameDoc = doc(db, "singlePlayerWordGames", userUID);
-
-      const docSnapshot = (await getDoc(
-        singlePlayerWordGameDoc,
-      )) as DocumentSnapshot<SinglePlayerWordGame>;
-      return docSnapshot.data() ?? null;
-    },
+  const wordGameQuery = createQuery(() => ({
+    ...singlePlayerWordGameQueryOptions,
     enabled: $authState.currentUser !== null,
   }));
 
-  const wordGamePreferences = createQuery(() => ({
-    queryKey: wordGameQueryKeys.preferences,
-    queryFn: async () => {
-      const userUID = authState.get().currentUser?.uid ?? "";
-      const singlePlayerWordGamePreferencesDoc = doc(
-        db,
-        "singlePlayerWordGamePreferences",
-        userUID,
-      );
-
-      const docSnapshot = (await getDoc(
-        singlePlayerWordGamePreferencesDoc,
-      )) as DocumentSnapshot<SinglePlayerWordGamePreferences>;
-      return docSnapshot.exists()
-        ? (docSnapshot.data() as SinglePlayerWordGamePreferences)
-        : null;
-    },
+  const wordGamePreferencesQuery = createQuery(() => ({
+    ...singlePlayerWordGamePreferencesQueryOptions,
     enabled: $authState.currentUser !== null,
   }));
 
   const startNewGameMutation = createMutation(() => ({
-    mutationKey: wordGameQueryKeys.startWordGame,
-    mutationFn: async ({
-      maxMistakes,
-      userUID,
-    }: {
-      maxMistakes: number;
-      userUID: string;
-    }) => {
-      const newWordGame: SinglePlayerWordGame = {
-        maxMistakes,
-        mistakes: 0,
-        words: [],
-      };
-
-      await setDoc(doc(db, "singlePlayerWordGames", userUID), newWordGame, {
-        merge: true,
-      });
+    ...startNewGameMutationOptions,
+    onSuccess: async () => {
       await navigate("/user/game");
+    },
+    onError: () => {
+      toast.error("Failed to start game.");
     },
   }));
 
-  const maxMistakes = $derived(wordGamePreferences.data?.maxMistakes ?? 5);
+  const maxMistakes = $derived(wordGamePreferencesQuery.data?.maxMistakes ?? 5);
   const canContinueGame = $derived(
-    wordGame.data !== undefined &&
-      wordGame.data !== null &&
-      wordGame.data.words.length > 0,
+    wordGameQuery.data !== undefined &&
+      wordGameQuery.data !== null &&
+      wordGameQuery.data.words.length > 0,
   );
 
   $effect(() => {
@@ -135,12 +100,12 @@
 <form class="card flex w-full flex-col items-center gap-4">
   <div class="flex w-full justify-between space-y-2">
     <Label>Max consecutive mistakes</Label>
-    {#if wordGamePreferences.isPending}
+    {#if wordGamePreferencesQuery.isPending}
       <Skeleton class="h-9 w-14.5" />
     {:else}
       <NativeSelect
         value={maxMistakes}
-        disabled={wordGamePreferences.isPending}
+        disabled={wordGamePreferencesQuery.isPending}
         onchange={handleUpdateMaxMistakes}
         bind:ref={maxMistakesSelectRef}
       >
@@ -153,25 +118,25 @@
     {/if}
   </div>
   <div class="flex gap-2 *:w-25">
-    {#if wordGame.isPending}
+    {#if wordGameQuery.isPending}
       <Skeleton class="h-9" />
     {:else}
       <Button
         variant="outline"
-        disabled={!canContinueGame || wordGame.isPending}
+        disabled={!canContinueGame || wordGameQuery.isPending}
         onclick={() => navigate("/user/game")}
       >
         Continue
       </Button>
     {/if}
-    {#if wordGame.isPending}
+    {#if wordGameQuery.isPending}
       <Skeleton class="h-9" />
     {:else if canContinueGame}
       <AlertDialog>
         <AlertDialogTrigger
           class={buttonVariants({ variant: "default" })}
           type="button"
-          disabled={!canContinueGame || wordGame.isPending}
+          disabled={!canContinueGame || wordGameQuery.isPending}
         >
           {NEW_GAME_BUTTON_TEXT}
         </AlertDialogTrigger>
@@ -197,7 +162,7 @@
       </AlertDialog>
     {:else}
       <Button
-        disabled={wordGame.isPending || startNewGameMutation.isPending}
+        disabled={wordGameQuery.isPending || startNewGameMutation.isPending}
         onclick={handleStartNewGame}
       >
         <LoadingSwap isLoading={startNewGameMutation.isPending}>

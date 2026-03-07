@@ -6,18 +6,15 @@
     AuthFormFooter,
     AuthFormTitle,
   } from "$features/auth/components";
-  import { authQueryKeys } from "$features/auth/queryKeys";
+  import { registerMutationOptions } from "$features/auth/mutationOptions";
   import { emailSchema, registerPasswordSchema } from "$features/auth/schemas";
   import { Button } from "$lib/components/ui/button";
   import { Input } from "$lib/components/ui/input";
   import { Label } from "$lib/components/ui/label";
-  import { auth, mapFirebaseErrorCode } from "$lib/firebase";
+  import { mapFirebaseErrorCode } from "$lib/firebase";
   import { navigate } from "$lib/router";
   import { createMutation } from "@tanstack/svelte-query";
-  import {
-    createUserWithEmailAndPassword,
-    type AuthError,
-  } from "firebase/auth";
+  import type { AuthError } from "firebase/auth";
   import { toast } from "svelte-sonner";
 
   let email = $state("");
@@ -25,13 +22,10 @@
   let emailError: string | null = $state(null);
   let passwordError: string | null = $state(null);
 
-  const userRegister = createMutation(() => ({
-    mutationKey: authQueryKeys.register,
-    mutationFn: async () => {
-      return await createUserWithEmailAndPassword(auth, email, password);
-    },
-    onSuccess: () => {
-      navigate("/register/verify");
+  const registerMutation = createMutation(() => ({
+    ...registerMutationOptions,
+    onSuccess: async () => {
+      await navigate("/register/verify");
     },
     onError: (error: AuthError) => {
       const firebaseError = mapFirebaseErrorCode(error.code);
@@ -54,7 +48,7 @@
     }
 
     if (emailError === null && passwordError === null) {
-      userRegister.mutate();
+      registerMutation.mutate({ email, password });
     }
   }
 </script>
@@ -86,7 +80,8 @@
       <p class="text-destructive text-sm">{passwordError}</p>
     {/if}
   </AuthFormFieldset>
-  <AuthFormAction isLoading={userRegister.isPending}>Sign Up</AuthFormAction>
+  <AuthFormAction isLoading={registerMutation.isPending}>Sign Up</AuthFormAction
+  >
   <AuthFormFooter>
     Already have an account? Log in <Button href="/login" variant="link">
       here

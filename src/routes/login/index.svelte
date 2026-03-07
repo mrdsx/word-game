@@ -6,16 +6,14 @@
     AuthFormFooter,
     AuthFormTitle,
   } from "$features/auth/components";
-  import { authQueryKeys } from "$features/auth/queryKeys";
+  import { loginMutationOptions } from "$features/auth/mutationOptions";
   import { emailSchema, loginPasswordSchema } from "$features/auth/schemas";
-  import { authState } from "$features/auth/stores/authState";
+  import { authState } from "$features/auth/stores";
   import { Button } from "$lib/components/ui/button";
   import { Input } from "$lib/components/ui/input";
   import { Label } from "$lib/components/ui/label";
-  import { auth } from "$lib/firebase";
   import { navigate } from "$lib/router";
   import { createMutation } from "@tanstack/svelte-query";
-  import { signInWithEmailAndPassword } from "firebase/auth";
   import { toast } from "svelte-sonner";
 
   let email = $state("");
@@ -23,11 +21,8 @@
   let emailError: string | null = $state(null);
   let passwordError: string | null = $state(null);
 
-  const userLogin = createMutation(() => ({
-    mutationKey: authQueryKeys.login,
-    mutationFn: async () => {
-      await signInWithEmailAndPassword(auth, email, password);
-    },
+  const loginMutation = createMutation(() => ({
+    ...loginMutationOptions,
     onError: () => {
       toast.error("Wrong email or password.");
     },
@@ -54,7 +49,7 @@
     }
 
     if (emailError === null && passwordError === null) {
-      userLogin.mutate();
+      loginMutation.mutate({ email, password });
     }
   }
 </script>
@@ -86,7 +81,7 @@
       <p class="text-destructive text-sm">{passwordError}</p>
     {/if}
   </AuthFormFieldset>
-  <AuthFormAction isLoading={userLogin.isPending}>Log In</AuthFormAction>
+  <AuthFormAction isLoading={loginMutation.isPending}>Log In</AuthFormAction>
   <AuthFormFooter>
     Don't have account yet? Create new one <Button
       href="/register"

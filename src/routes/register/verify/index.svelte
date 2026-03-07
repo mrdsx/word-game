@@ -1,24 +1,19 @@
 <script lang="ts">
-  import { authQueryKeys } from "$features/auth/queryKeys";
-  import { authState } from "$features/auth/stores/authState";
+  import { verifyEmailMutationOptions } from "$features/auth/mutationOptions";
+  import { authState } from "$features/auth/stores";
   import { Alert, AlertTitle } from "$lib/components/ui/alert";
   import { Button } from "$lib/components/ui/button";
   import { LoadingSwap } from "$lib/components/ui/loading-swap";
-  import { actionCodeSettings } from "$lib/firebase";
   import { navigate } from "$lib/router";
   import { createMutation } from "@tanstack/svelte-query";
-  import { sendEmailVerification, type User } from "firebase/auth";
   import { CircleCheckIcon } from "lucide-svelte";
   import { toast } from "svelte-sonner";
 
   let isEmailSent = $state(false);
   const user = $derived($authState.currentUser);
 
-  const confirmationEmail = createMutation(() => ({
-    mutationKey: authQueryKeys.verifyEmail,
-    mutationFn: async (user: User) => {
-      await sendEmailVerification(user, actionCodeSettings);
-    },
+  const verifyEmailMutation = createMutation(() => ({
+    ...verifyEmailMutationOptions,
     onSuccess: () => {
       isEmailSent = true;
     },
@@ -33,12 +28,12 @@
     }
   });
 
-  function handleSendEmailVerification(): void {
+  function handleSendVerificationEmail(): void {
     if (user === null) {
       toast.error("Not authenticated.");
-      return;
+    } else {
+      verifyEmailMutation.mutate(user);
     }
-    confirmationEmail.mutate(user);
   }
 </script>
 
@@ -51,10 +46,11 @@
     </Alert>
   {:else}
     <Button
-      disabled={$authState.currentUser === null || confirmationEmail.isPending}
-      onclick={handleSendEmailVerification}
+      disabled={$authState.currentUser === null ||
+        verifyEmailMutation.isPending}
+      onclick={handleSendVerificationEmail}
     >
-      <LoadingSwap isLoading={confirmationEmail.isPending} fallback="Sending">
+      <LoadingSwap isLoading={verifyEmailMutation.isPending} fallback="Sending">
         Send verification email
       </LoadingSwap>
     </Button>

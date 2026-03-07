@@ -1,9 +1,6 @@
 <script lang="ts">
-  import {
-    resetWordGame,
-    stopWordGame,
-    words,
-  } from "$features/local-word-game/stores";
+  import { authState } from "$features/auth/stores";
+  import type { Word } from "$features/word-game/types";
   import {
     AlertDialog,
     AlertDialogAction,
@@ -16,17 +13,17 @@
     AlertDialogTrigger,
   } from "$lib/components/ui/alert-dialog";
   import { Button, buttonVariants } from "$lib/components/ui/button";
-  import { cn } from "$lib/utils";
+  import { navigate } from "$lib/router";
+  import { resetSinglePlayerWords } from "../services";
+  import { singlePlayerWordGameState } from "../stores";
 
-  type LocalWordGameActionsProps = {
-    class?: string;
-  };
-
-  let { class: className }: LocalWordGameActionsProps = $props();
+  const wordGame = $derived($singlePlayerWordGameState.wordGame);
+  const wordGameWords = $derived((wordGame ?? { words: [] }).words as Word[]);
+  const userUID = $derived($authState.currentUser?.uid);
 </script>
 
-<div class={cn("space-x-1", className)}>
-  {#if $words.length > 0}
+<div class="space-x-1">
+  {#if wordGame !== undefined && wordGame !== null && wordGameWords.length > 0}
     <AlertDialog>
       <AlertDialogTrigger class={buttonVariants({ variant: "outline" })}>
         Reset
@@ -40,11 +37,13 @@
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>No</AlertDialogCancel>
-          <AlertDialogAction onclick={resetWordGame}>Yes</AlertDialogAction>
+          <AlertDialogAction onclick={() => resetSinglePlayerWords(userUID)}>
+            Yes
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
   {/if}
 
-  <Button onclick={stopWordGame}>Finish</Button>
+  <Button onclick={() => navigate("/")}>Finish</Button>
 </div>
