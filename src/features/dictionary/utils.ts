@@ -2,6 +2,8 @@ import { WordGameError } from "$features/word-game/exceptions";
 import { dictionaryWordSchema } from "./schemas";
 import type { DictionaryWord } from "./types";
 
+const NOUN_PART_OF_SPEECH: string = "noun";
+
 export function flatDictionaryWordDefinitions(
   dictionaryWord: DictionaryWord,
 ): string[] {
@@ -10,7 +12,7 @@ export function flatDictionaryWordDefinitions(
   for (const word of dictionaryWord) {
     for (const meaning of word.meanings) {
       for (const definitionObj of meaning.definitions) {
-        if (meaning.partOfSpeech !== "noun") {
+        if (meaning.partOfSpeech !== NOUN_PART_OF_SPEECH) {
           continue;
         }
         result.push(definitionObj.definition);
@@ -30,8 +32,9 @@ export function validateDictionaryWord(data: unknown): void {
   let isNoun = false;
   for (const word of words) {
     for (const meaning of word.meanings) {
-      if (meaning.partOfSpeech === "noun") {
+      if (meaning.partOfSpeech === NOUN_PART_OF_SPEECH) {
         isNoun = true;
+        break;
       }
     }
   }
