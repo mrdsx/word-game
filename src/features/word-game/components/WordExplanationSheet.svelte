@@ -1,7 +1,5 @@
 <script lang="ts">
-  import { fetchDictionaryWord } from "$features/dictionary/api";
-  import { dictionaryWordQueryKeys } from "$features/dictionary/queryKeys";
-  import { dictionaryWordSchema } from "$features/dictionary/schemas";
+  import { getDictionaryWordQueryOptions } from "$features/dictionary/queryOptions";
   import { flatDictionaryWordDefinitions } from "$features/dictionary/utils";
   import { buttonVariants } from "$lib/components/ui/button";
   import {
@@ -15,9 +13,8 @@
   import { Spinner } from "$lib/components/ui/spinner";
   import { capitalizeWord, cn } from "$lib/utils";
   import { BookTextIcon } from "@lucide/svelte";
-  import { createMutation } from "@tanstack/svelte-query";
+  import { createQuery } from "@tanstack/svelte-query";
   import type { Word } from "../types";
-  import { normalizeWord } from "../utils";
 
   type WordExplanationProps = {
     word: Word;
@@ -27,19 +24,12 @@
   let wasOpened: boolean = $state(false);
   let wordDefinitions: string[] = $state([]);
 
-  const fetchDictionaryWordMutation = createMutation(() => ({
-    mutationKey: dictionaryWordQueryKeys.dictionaryWord,
-    mutationFn: async (word: Word) => {
-      const normalized = normalizeWord(word);
-      const wordData = await fetchDictionaryWord(normalized);
-      const { data: dictionaryWord } =
-        await dictionaryWordSchema.safeParseAsync(wordData);
-
-      return dictionaryWord;
-    },
+  const dictionaryWordQuery = createQuery(() => ({
+    ...getDictionaryWordQueryOptions(word),
+    enabled: wasOpened,
   }));
 
-  const dictionaryWord = $derived(fetchDictionaryWordMutation.data);
+  const dictionaryWord = $derived(dictionaryWordQuery.data);
 
   $effect(() => {
     const words = $state.snapshot(dictionaryWord);
@@ -50,9 +40,6 @@
   });
 
   function handleSheetOpenChange(): void {
-    if (!wasOpened) {
-      fetchDictionaryWordMutation.mutate(word);
-    }
     wasOpened = true;
   }
 </script>
@@ -68,9 +55,9 @@
   </SheetTrigger>
   <SheetContent>
     <SheetHeader>
-      {#if fetchDictionaryWordMutation.isPending}
+      {#if dictionaryWordQuery.isPending}
         <Spinner />
-      {:else if fetchDictionaryWordMutation.isError}
+      {:else if dictionaryWordQuery.isError}
         <p class="text-destructive">Failed to fetch word.</p>
       {:else}
         <SheetTitle class="mb-2 text-lg">{capitalizeWord(word)}</SheetTitle>
