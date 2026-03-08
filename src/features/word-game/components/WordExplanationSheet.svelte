@@ -13,7 +13,7 @@
     SheetTrigger,
   } from "$lib/components/ui/sheet";
   import { Spinner } from "$lib/components/ui/spinner";
-  import { capitalizeWord } from "$lib/utils";
+  import { capitalizeWord, cn } from "$lib/utils";
   import { BookTextIcon } from "@lucide/svelte";
   import { createMutation } from "@tanstack/svelte-query";
   import type { Word } from "../types";
@@ -58,7 +58,12 @@
 </script>
 
 <Sheet onOpenChange={handleSheetOpenChange}>
-  <SheetTrigger class={buttonVariants({ size: "icon-sm", variant: "ghost" })}>
+  <SheetTrigger
+    class={cn(
+      buttonVariants({ size: "icon-sm", variant: "ghost" }),
+      "hover:bg-blue-300 dark:hover:bg-blue-600",
+    )}
+  >
     <BookTextIcon />
   </SheetTrigger>
   <SheetContent>
@@ -68,7 +73,7 @@
       {:else if fetchDictionaryWordMutation.isError}
         <p class="text-destructive">Failed to fetch word.</p>
       {:else}
-        <SheetTitle class="mb-2">{capitalizeWord(word)}</SheetTitle>
+        <SheetTitle class="mb-2 text-lg">{capitalizeWord(word)}</SheetTitle>
         <SheetDescription class="text-foreground max-h-[90vh] overflow-auto">
           <ol class="space-y-2 text-[15px]">
             {#each wordDefinitions as definition, index}
