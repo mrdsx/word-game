@@ -7,6 +7,7 @@ import { db } from "$lib/firebase";
 import type { MutationOptions } from "@tanstack/svelte-query";
 import { doc, setDoc } from "firebase/firestore";
 import { singlePlayerWordGameQueryKeys } from "./queryKeys";
+import { resetSinglePlayerWords } from "./services";
 import type { SinglePlayerWordGame } from "./types";
 
 type AddWordMutationOptions = MutationOptions<
@@ -20,6 +21,13 @@ type IncrementMistakesMutationOptions = MutationOptions<
   void,
   Error,
   { userUID: string; wordGame: SinglePlayerWordGame },
+  unknown
+>;
+
+type ResetSinglePlayerWordsMutationOptions = MutationOptions<
+  void,
+  Error,
+  string,
   unknown
 >;
 
@@ -77,6 +85,13 @@ export const incrementMistakesMutationOptions = {
     );
   },
 } satisfies IncrementMistakesMutationOptions;
+
+export const resetSinglePlayerWordsMutationOptions = {
+  mutationKey: singlePlayerWordGameQueryKeys.resetWords,
+  mutationFn: async (userUID: string) => {
+    await resetSinglePlayerWords(userUID);
+  },
+} satisfies ResetSinglePlayerWordsMutationOptions;
 
 export const startNewGameMutationOptions = {
   mutationKey: singlePlayerWordGameQueryKeys.startWordGame,

@@ -13,13 +13,28 @@
     AlertDialogTrigger,
   } from "$lib/components/ui/alert-dialog";
   import { Button, buttonVariants } from "$lib/components/ui/button";
+  import { LoadingSwap } from "$lib/components/ui/loading-swap";
   import { navigate } from "$lib/router";
-  import { resetSinglePlayerWords } from "../services";
+  import { createMutation } from "@tanstack/svelte-query";
+  import { toast } from "svelte-sonner";
+  import { resetSinglePlayerWordsMutationOptions } from "../mutationOptions";
   import { singlePlayerWordGameState } from "../stores";
 
   const wordGame = $derived($singlePlayerWordGameState.wordGame);
   const wordGameWords = $derived((wordGame ?? { words: [] }).words as Word[]);
   const userUID = $derived($authState.currentUser?.uid);
+
+  const resetSinglePlayerWordsMutation = createMutation(() => ({
+    ...resetSinglePlayerWordsMutationOptions,
+    onError: () => {
+      toast.error("Failed to reset the words.");
+    },
+  }));
+
+  async function handleSinglePlayerWordsReset(): Promise<void> {
+    if (userUID === undefined) return;
+    resetSinglePlayerWordsMutation.mutate(userUID);
+  }
 </script>
 
 <div class="space-x-1">
@@ -37,8 +52,13 @@
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>No</AlertDialogCancel>
-          <AlertDialogAction onclick={() => resetSinglePlayerWords(userUID)}>
-            Yes
+          <AlertDialogAction
+            disabled={resetSinglePlayerWordsMutation.isPending}
+            onclick={handleSinglePlayerWordsReset}
+          >
+            <LoadingSwap isLoading={resetSinglePlayerWordsMutation.isPending}>
+              Yes
+            </LoadingSwap>
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
