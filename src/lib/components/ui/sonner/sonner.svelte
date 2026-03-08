@@ -1,9 +1,9 @@
 <script lang="ts">
   import {
     CircleCheckIcon,
+    CircleXIcon,
     InfoIcon,
     LoaderCircleIcon,
-    OctagonXIcon,
     TriangleAlertIcon,
   } from "@lucide/svelte";
 
@@ -29,7 +29,7 @@
     <CircleCheckIcon class="size-4" />
   {/snippet}
   {#snippet errorIcon()}
-    <OctagonXIcon class="size-4" />
+    <CircleXIcon class="size-4" />
   {/snippet}
   {#snippet infoIcon()}
     <InfoIcon class="size-4" />
