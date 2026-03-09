@@ -23,6 +23,7 @@
   const userUID = $derived($authState.currentUser?.uid);
   const wordGame = $derived($singlePlayerWordGameState.wordGame);
   const submitError = $derived($singlePlayerWordGameState.submitError);
+  const words = $derived($singlePlayerWordGameState.words);
 
   const addWordMutation = createMutation(() => ({
     ...addWordMutationOptions,
@@ -42,7 +43,7 @@
       await addWordMutation.mutateAsync({
         newWord,
         userUID,
-        wordGame,
+        words,
       });
       newWord = "";
     } catch (error) {

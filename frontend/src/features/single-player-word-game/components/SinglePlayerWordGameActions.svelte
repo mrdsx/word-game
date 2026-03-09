@@ -14,20 +14,25 @@
   } from "$lib/components/ui/alert-dialog";
   import { Button, buttonVariants } from "$lib/components/ui/button";
   import { LoadingSwap } from "$lib/components/ui/loading-swap";
+  import { mapFirebaseErrorCode } from "$lib/firebase";
   import { navigate } from "$lib/router";
   import { createMutation } from "@tanstack/svelte-query";
+  import type { FirebaseError } from "firebase/app";
   import { toast } from "svelte-sonner";
   import { resetSinglePlayerWordsMutationOptions } from "../mutationOptions";
   import { singlePlayerWordGameState } from "../stores";
 
   const wordGame = $derived($singlePlayerWordGameState.wordGame);
-  const wordGameWords = $derived((wordGame ?? { words: [] }).words as Word[]);
+  const singlePlayerWords = $derived(
+    $singlePlayerWordGameState.words as Word[],
+  );
   const userUID = $derived($authState.currentUser?.uid);
 
   const resetSinglePlayerWordsMutation = createMutation(() => ({
     ...resetSinglePlayerWordsMutationOptions,
-    onError: () => {
-      toast.error("Failed to reset the words.");
+    onError: (error: FirebaseError) => {
+      const message = mapFirebaseErrorCode(error.code);
+      toast.error(message ?? "Failed to reset the words.");
     },
   }));
 
@@ -38,7 +43,7 @@
 </script>
 
 <div class="space-x-1">
-  {#if wordGame !== undefined && wordGame !== null && wordGameWords.length > 0}
+  {#if wordGame !== undefined && wordGame !== null && singlePlayerWords.length > 0}
     <AlertDialog>
       <AlertDialogTrigger class={buttonVariants({ variant: "outline" })}>
         Reset

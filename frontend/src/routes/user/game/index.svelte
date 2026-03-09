@@ -5,40 +5,46 @@
     SinglePlayerWordGameActions,
     SinglePlayerWordsArea,
   } from "$features/single-player-word-game/components";
-  import { resetSinglePlayerMistakes } from "$features/single-player-word-game/services";
+  import { resetSinglePlayerWords } from "$features/single-player-word-game/services";
   import {
     setSinglePlayerWordGame,
     setSinglePlayerWordGameError,
+    setSinglePlayerWords,
+    singlePlayerWordGameState,
   } from "$features/single-player-word-game/stores";
-  import type { SinglePlayerWordGame } from "$features/single-player-word-game/types";
+  import type {
+    SinglePlayerWord,
+    SinglePlayerWordGame,
+  } from "$features/single-player-word-game/types";
   import { db } from "$lib/firebase";
   import { declineWord } from "$lib/utils";
-  import type { Unsubscribe } from "firebase/auth";
-  import { doc, onSnapshot, setDoc } from "firebase/firestore";
-  import { onDestroy } from "svelte";
+  import {
+    collection,
+    doc,
+    onSnapshot,
+    orderBy,
+    query,
+    setDoc,
+  } from "firebase/firestore";
 
-  let unsubscribe: Unsubscribe | null = $state(null);
-
+  const singlePlayerWords = $derived($singlePlayerWordGameState.words);
   const userUID = $derived($authState.currentUser?.uid);
 
   $effect(() => {
     if (userUID === undefined) return;
 
-    unsubscribe = onSnapshot(
+    const unsubscribe = onSnapshot(
       doc(db, "singlePlayerWordGames", userUID),
       async (doc) => {
         const wordGameData = doc.data() as SinglePlayerWordGame | undefined;
         const isGameLost =
           wordGameData !== undefined &&
           wordGameData.mistakes >= wordGameData.maxMistakes &&
-          wordGameData.words.length > 0;
+          singlePlayerWords.length > 0;
 
         if (isGameLost) {
-          await handleGameOver(wordGameData.words.length, userUID);
+          await handleGameOver(singlePlayerWords.length, userUID);
         } else {
-          if (wordGameData?.words.length === 0) {
-            await resetSinglePlayerMistakes(userUID);
-          }
           setSinglePlayerWordGame(wordGameData ?? null);
         }
       },
@@ -48,12 +54,32 @@
     );
 
     return () => {
-      unsubscribe?.();
+      unsubscribe();
     };
   });
 
-  onDestroy(() => {
-    unsubscribe?.();
+  $effect(() => {
+    if (userUID === undefined) return;
+
+    const wordsRef = collection(db, "singlePlayerWordGames", userUID, "words");
+    const recentWords = query(wordsRef, orderBy("createdAt", "asc"));
+    const unsubscribe = onSnapshot(
+      recentWords,
+      async (snapshot) => {
+        const wordDocuments = snapshot.docs.map((word) =>
+          word.data(),
+        ) as SinglePlayerWord[];
+        const words = wordDocuments.map((word) => word.value);
+        setSinglePlayerWords(words);
+      },
+      () => {
+        setSinglePlayerWordGame(null);
+      },
+    );
+
+    return () => {
+      unsubscribe();
+    };
   });
 
   async function handleGameOver(
@@ -67,9 +93,10 @@
 
     await setDoc(
       doc(db, "singlePlayerWordGames", userUID),
-      { mistakes: 0, words: [] },
+      { mistakes: 0 },
       { merge: true },
     );
+    await resetSinglePlayerWords(userUID);
   }
 </script>
 

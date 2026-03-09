@@ -1,12 +1,11 @@
 <script lang="ts">
   import { singlePlayerWordGameState } from "$features/single-player-word-game/stores";
   import { WordGameInfo, WordsList } from "$features/word-game/components";
-  import type { Word } from "$features/word-game/types";
   import { reverseWords } from "$features/word-game/utils";
   import { Spinner } from "$lib/components/ui/spinner";
 
   const wordGame = $derived($singlePlayerWordGameState.wordGame);
-  const wordGameWords = $derived((wordGame ?? { words: [] }).words as Word[]);
+  const wordGameWords = $derived($singlePlayerWordGameState.words);
   const reversedWords = $derived(reverseWords(wordGameWords));
 </script>
 

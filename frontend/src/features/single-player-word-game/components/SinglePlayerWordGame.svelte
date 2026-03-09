@@ -22,19 +22,21 @@
   import { db } from "$lib/firebase";
   import { navigate } from "$lib/router";
   import { createMutation, createQuery } from "@tanstack/svelte-query";
-  import { doc, setDoc } from "firebase/firestore";
+  import { collection, doc, onSnapshot, setDoc } from "firebase/firestore";
   import { toast } from "svelte-sonner";
   import { startNewGameMutationOptions } from "../mutationOptions";
   import {
     singlePlayerWordGamePreferencesQueryOptions,
     singlePlayerWordGameQueryOptions,
   } from "../queryOptions";
+  import type { SinglePlayerWord } from "../types";
 
   // TODO: refactor
 
   const NEW_GAME_BUTTON_TEXT = "New game";
 
   let maxMistakesSelectRef: HTMLSelectElement | null = $state(null);
+  let singlePlayerWordsLength = $state(0);
   const userUID = $derived($authState.currentUser?.uid);
 
   const wordGameQuery = createQuery(() => ({
@@ -47,6 +49,13 @@
     enabled: $authState.currentUser !== null,
   }));
 
+  const maxMistakes = $derived(wordGamePreferencesQuery.data?.maxMistakes ?? 5);
+  const canContinueGame = $derived(
+    wordGameQuery.data !== undefined &&
+      wordGameQuery.data !== null &&
+      singlePlayerWordsLength > 0,
+  );
+
   const startNewGameMutation = createMutation(() => ({
     ...startNewGameMutationOptions,
     onSuccess: async () => {
@@ -57,17 +66,26 @@
     },
   }));
 
-  const maxMistakes = $derived(wordGamePreferencesQuery.data?.maxMistakes ?? 5);
-  const canContinueGame = $derived(
-    wordGameQuery.data !== undefined &&
-      wordGameQuery.data !== null &&
-      wordGameQuery.data.words.length > 0,
-  );
-
   $effect(() => {
     if (maxMistakesSelectRef !== null) {
       maxMistakesSelectRef.value = String(maxMistakes);
     }
+  });
+
+  $effect(() => {
+    if (userUID === undefined) return;
+
+    const wordsRef = collection(db, "singlePlayerWordGames", userUID, "words");
+    const unsubscribe = onSnapshot(wordsRef, async (snapshot) => {
+      const wordDocuments = snapshot.docs.map((word) =>
+        word.data(),
+      ) as SinglePlayerWord[];
+      singlePlayerWordsLength = wordDocuments.length;
+    });
+
+    return () => {
+      unsubscribe();
+    };
   });
 
   async function handleUpdateMaxMistakes(
