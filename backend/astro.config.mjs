@@ -6,4 +6,12 @@ import { defineConfig } from "astro/config";
 export default defineConfig({
   output: "server",
   adapter: vercel(),
+  security: {
+    allowedDomains: [
+      {
+        hostname: "classic-word-game.vercel.app",
+        protocol: "https",
+      },
+    ],
+  },
 });
