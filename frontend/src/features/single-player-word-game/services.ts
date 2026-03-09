@@ -14,8 +14,10 @@ export async function resetSinglePlayerWords(userUID: string): Promise<void> {
   const response = await apiFetch("/word-game/single-player", {
     method: "DELETE",
     body: JSON.stringify({ userUID }),
+    credentials: "include",
     headers: {
       Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
     },
   });
 
