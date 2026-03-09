@@ -8,7 +8,7 @@
   <Alert variant="warning">
     <TriangleAlertIcon />
     <AlertTitle>
-      Your email is unverified. You can verify it <a
+      Your email is not verified. You can verify it <a
         class="link"
         href="/register/verify">here</a
       >.
