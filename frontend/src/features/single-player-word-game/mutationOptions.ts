@@ -119,6 +119,6 @@ export const startNewGameMutationOptions = {
     await setDoc(doc(db, "singlePlayerWordGames", userUID), newWordGame, {
       merge: true,
     });
-    resetSinglePlayerWords(userUID);
+    await resetSinglePlayerWords(userUID);
   },
 } satisfies StartNewGameMutationOptions;
