@@ -3,12 +3,12 @@ import { type FirebaseOptions } from "firebase/app";
 import type { ActionCodeSettings } from "firebase/auth";
 
 export const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  apiKey: "AIzaSyDxEuhh_usXK0HH5j2sclSLmIUt4z13hj0",
+  authDomain: "classic-word-game.firebaseapp.com",
+  projectId: "classic-word-game",
+  storageBucket: "classic-word-game.firebasestorage.app",
+  messagingSenderId: "1000546096889",
+  appId: "1:1000546096889:web:b12d90268ee0c6209d7428",
 } satisfies FirebaseOptions;
 
 export const actionCodeSettings = {
