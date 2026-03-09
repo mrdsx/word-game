@@ -1,6 +1,14 @@
+import { FRONTEND_HOST } from "@/lib/constants";
 import { auth, db } from "@/lib/firebase";
 import { deleteWordsSchema } from "@/lib/schemas";
 import type { APIRoute } from "astro";
+
+const headers: HeadersInit = {
+  "Access-Control-Allow-Origin": `https://${FRONTEND_HOST}`,
+  "Access-Control-Allow-Methods": "DELETE",
+  "Access-Control-Allow-Credentials": "true",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+};
 
 export const DELETE: APIRoute = async (context) => {
   const json = await context.request.json();
@@ -9,6 +17,7 @@ export const DELETE: APIRoute = async (context) => {
   if (authHeader === null) {
     return new Response(JSON.stringify({ data: "Invalid credentials" }), {
       status: 401,
+      headers,
     });
   }
 
@@ -20,6 +29,7 @@ export const DELETE: APIRoute = async (context) => {
   if (decodedToken === null) {
     return new Response(JSON.stringify({ data: "Invalid token" }), {
       status: 401,
+      headers,
     });
   }
 
@@ -27,6 +37,7 @@ export const DELETE: APIRoute = async (context) => {
   if (!success) {
     return new Response(JSON.stringify({ data: "Invalid request data." }), {
       status: 400,
+      headers,
     });
   }
 
@@ -34,6 +45,7 @@ export const DELETE: APIRoute = async (context) => {
   if (decodedToken.uid !== data.userUID) {
     return new Response(JSON.stringify({ data: "Unauthorized." }), {
       status: 403,
+      headers,
     });
   }
 
@@ -45,8 +57,15 @@ export const DELETE: APIRoute = async (context) => {
   } catch {
     return new Response(JSON.stringify({ data: "Internal server error" }), {
       status: 500,
+      headers,
     });
   }
 
-  return new Response(JSON.stringify({ data: "Hi" }));
+  return new Response(JSON.stringify({ data: "Hi" }), { headers });
+};
+
+export const OPTIONS = () => {
+  return new Response(null, {
+    headers,
+  });
 };

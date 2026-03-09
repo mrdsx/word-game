@@ -1,6 +1,7 @@
 // @ts-check
 import vercel from "@astrojs/vercel";
 import { defineConfig } from "astro/config";
+import { FRONTEND_HOST } from "./src/lib/constants";
 
 // https://astro.build/config
 export default defineConfig({
@@ -9,7 +10,7 @@ export default defineConfig({
   security: {
     allowedDomains: [
       {
-        hostname: "classic-word-game.vercel.app",
+        hostname: FRONTEND_HOST,
         protocol: "https",
       },
     ],
