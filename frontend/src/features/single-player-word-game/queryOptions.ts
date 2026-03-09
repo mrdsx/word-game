@@ -3,6 +3,7 @@ import { db } from "$lib/firebase";
 import { queryOptions, type CreateQueryOptions } from "@tanstack/svelte-query";
 import { doc, DocumentSnapshot, getDoc } from "firebase/firestore";
 import { singlePlayerWordGameQueryKeys } from "./queryKeys";
+import { userWordGamePreferencesDoc } from "./references/singlePlayerWordGamePreferences";
 import type {
   SinglePlayerWordGame,
   SinglePlayerWordGamePreferences,
@@ -41,14 +42,10 @@ export const singlePlayerWordGamePreferencesQueryOptions: SinglePlayerWordGamePr
     queryKey: singlePlayerWordGameQueryKeys.preferences,
     queryFn: async () => {
       const userUID = authState.get().currentUser?.uid ?? "";
-      const singlePlayerWordGamePreferencesDoc = doc(
-        db,
-        "singlePlayerWordGamePreferences",
-        userUID,
-      );
+      const userPreferencesDoc = userWordGamePreferencesDoc(userUID);
 
       const docSnapshot = (await getDoc(
-        singlePlayerWordGamePreferencesDoc,
+        userPreferencesDoc,
       )) as DocumentSnapshot<SinglePlayerWordGamePreferences>;
       return docSnapshot.exists()
         ? (docSnapshot.data() as SinglePlayerWordGamePreferences)

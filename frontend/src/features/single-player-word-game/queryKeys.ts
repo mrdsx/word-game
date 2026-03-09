@@ -5,6 +5,7 @@ const WORD_GAME_QUERY_KEYS = [WORD_GAME_QUERY_KEY, "singlePlayer"] as const;
 export const singlePlayerWordGameQueryKeys = {
   singlePlayer: WORD_GAME_QUERY_KEYS,
   wordGameMistakes: [...WORD_GAME_QUERY_KEYS, "mistakes"],
+  updateWordGameMistakes: [...WORD_GAME_QUERY_KEYS, "mistakes", "update"],
   startWordGame: [...WORD_GAME_QUERY_KEYS, "start"],
   updateWordGame: [...WORD_GAME_QUERY_KEYS, "update"],
   resetWords: [...WORD_GAME_QUERY_KEYS, "resetWords"],

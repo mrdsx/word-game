@@ -1,0 +1,28 @@
+rules_version = '2';
+
+service cloud.firestore {
+  function isOwner(userUID) {
+    return request.auth != null && request.auth.uid == userUID;
+  }
+
+  function isVerified() {
+    return request.auth.token.email_verified;
+  }
+
+  match /databases/{database}/documents {
+    match /singlePlayerWordGamePreferences/{userUID} {
+      allow read:
+      if isOwner(userUID);
+      allow create, update:
+      if isOwner(userUID) &&
+      isVerified() &&
+      request.resource.data.maxMistakes is number &&
+      request.resource.data.maxMistakes > 0 &&
+      request.resource.data.maxMistakes < 6;
+      allow delete: if false;
+    }
+    match /singlePlayerWordGames/{userUID=**} {
+      allow read, write: if true;
+    }
+  }
+}

@@ -1,8 +1,14 @@
 import { authState } from "$features/auth/stores";
 import { apiFetch } from "$lib/api";
 import { FirebaseError } from "firebase/app";
+import { setDoc } from "firebase/firestore";
+import { userWordGamePreferencesDoc } from "./references/singlePlayerWordGamePreferences";
 
-export async function resetSinglePlayerWords(userUID: string): Promise<void> {
+export async function resetSinglePlayerWords({
+  userUID,
+}: {
+  userUID: string;
+}): Promise<void> {
   const token = await authState.get().currentUser?.getIdToken();
   if (token === undefined) {
     throw new FirebaseError(
@@ -34,4 +40,18 @@ export async function resetSinglePlayerWords(userUID: string): Promise<void> {
   } else if (response.status === 400) {
     throw new FirebaseError("auth/invalid-argument", "Invalid request.");
   }
+}
+
+export async function updateMaxMistakes({
+  maxMistakes,
+  userUID,
+}: {
+  maxMistakes: number;
+  userUID: string;
+}): Promise<void> {
+  await setDoc(
+    userWordGamePreferencesDoc(userUID),
+    { maxMistakes },
+    { merge: true },
+  );
 }

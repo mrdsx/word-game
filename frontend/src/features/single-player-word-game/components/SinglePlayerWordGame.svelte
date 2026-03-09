@@ -19,12 +19,16 @@
     NativeSelectOption,
   } from "$lib/components/ui/native-select";
   import { Skeleton } from "$lib/components/ui/skeleton";
-  import { db } from "$lib/firebase";
+  import { db, mapFirebaseErrorCode } from "$lib/firebase";
   import { navigate } from "$lib/router";
   import { createMutation, createQuery } from "@tanstack/svelte-query";
-  import { collection, doc, onSnapshot, setDoc } from "firebase/firestore";
+  import type { FirebaseError } from "firebase/app";
+  import { collection, onSnapshot } from "firebase/firestore";
   import { toast } from "svelte-sonner";
-  import { startNewGameMutationOptions } from "../mutationOptions";
+  import {
+    startNewGameMutationOptions,
+    updateMaxMistakesMutationOptions,
+  } from "../mutationOptions";
   import {
     singlePlayerWordGamePreferencesQueryOptions,
     singlePlayerWordGameQueryOptions,
@@ -49,7 +53,9 @@
     enabled: $authState.currentUser !== null,
   }));
 
-  const maxMistakes = $derived(wordGamePreferencesQuery.data?.maxMistakes ?? 5);
+  const defaultMaxMistakes = $derived(
+    wordGamePreferencesQuery.data?.maxMistakes ?? 5,
+  );
   const canContinueGame = $derived(
     wordGameQuery.data !== undefined &&
       wordGameQuery.data !== null &&
@@ -66,9 +72,20 @@
     },
   }));
 
+  const updateMaxMistakesMutation = createMutation(() => ({
+    ...updateMaxMistakesMutationOptions,
+    onError: (error: FirebaseError) => {
+      const message = mapFirebaseErrorCode(error.code);
+      toast.error(message ?? "Failed to update max mistakes.");
+      if (maxMistakesSelectRef !== null) {
+        maxMistakesSelectRef.value = String(defaultMaxMistakes);
+      }
+    },
+  }));
+
   $effect(() => {
     if (maxMistakesSelectRef !== null) {
-      maxMistakesSelectRef.value = String(maxMistakes);
+      maxMistakesSelectRef.value = String(defaultMaxMistakes);
     }
   });
 
@@ -93,16 +110,9 @@
       currentTarget: EventTarget & HTMLSelectElement;
     },
   ): Promise<void> {
-    if (userUID === undefined) return;
-
     const maxMistakes = Number(event.currentTarget.value);
-    if (isNaN(maxMistakes)) return;
-
-    await setDoc(
-      doc(db, "singlePlayerWordGamePreferences", userUID),
-      { maxMistakes },
-      { merge: true },
-    );
+    if (userUID === undefined || isNaN(maxMistakes)) return;
+    updateMaxMistakesMutation.mutate({ maxMistakes, userUID });
   }
 
   async function handleStartNewGame(): Promise<void> {
@@ -122,7 +132,7 @@
       <Skeleton class="h-9 w-14.5" />
     {:else}
       <NativeSelect
-        value={maxMistakes}
+        value={defaultMaxMistakes}
         disabled={wordGamePreferencesQuery.isPending}
         onchange={handleUpdateMaxMistakes}
         bind:ref={maxMistakesSelectRef}

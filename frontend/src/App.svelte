@@ -22,6 +22,7 @@
 
   onAuthStateChanged(auth, (user) => {
     if (user !== null) {
+      auth.currentUser?.getIdToken(true);
       stopWordGame();
     }
     setUser(user);

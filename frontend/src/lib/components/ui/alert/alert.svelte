@@ -9,6 +9,7 @@
         success: "bg-success border-success-border text-success-foreground",
         destructive:
           "text-destructive bg-card *:data-[slot=alert-description]:text-destructive/90 [&>svg]:text-current",
+        warning: "text-yellow-400 bg-card [&>svg]:text-current",
       },
     },
     defaultVariants: {

@@ -96,7 +96,7 @@
       { mistakes: 0 },
       { merge: true },
     );
-    await resetSinglePlayerWords(userUID);
+    await resetSinglePlayerWords({ userUID });
   }
 </script>
 
