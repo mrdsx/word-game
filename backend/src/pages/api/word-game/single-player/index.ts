@@ -36,7 +36,7 @@ export const DELETE: APIRoute = async (context) => {
   const { data, success } = deleteWordsSchema.safeParse(json);
   if (!success) {
     return new Response(JSON.stringify({ data: "Invalid request data." }), {
-      status: 400,
+      status: 422,
       headers,
     });
   }
@@ -61,10 +61,10 @@ export const DELETE: APIRoute = async (context) => {
     });
   }
 
-  return new Response(JSON.stringify({ data: "Hi" }), { headers });
+  return new Response(JSON.stringify({ data: "Successfully deleted words." }), { headers });
 };
 
-export const OPTIONS = () => {
+export const OPTIONS: APIRoute = () => {
   return new Response(null, {
     headers,
   });
