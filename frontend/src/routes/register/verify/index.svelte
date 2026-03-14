@@ -1,7 +1,7 @@
 <script lang="ts">
   import { verifyEmailMutationOptions } from "$features/auth/mutationOptions";
   import { authState } from "$features/auth/stores";
-  import { Alert, AlertTitle } from "$lib/components/ui/alert";
+  import { Alert, AlertTitle, AlertDescription } from "$lib/components/ui/alert";
   import { Button } from "$lib/components/ui/button";
   import { LoadingSwap } from "$lib/components/ui/loading-swap";
   import { navigate } from "$lib/router";
@@ -43,6 +43,7 @@
     <Alert variant="success">
       <CircleCheckIcon />
       <AlertTitle>Verification letter has been sent to your email.</AlertTitle>
+      <AlertDescription>Check spam/junk folder if you haven't received the letter.</AlertDescription>
     </Alert>
   {:else}
     <Button
