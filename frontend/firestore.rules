@@ -9,20 +9,57 @@ service cloud.firestore {
     return request.auth.token.email_verified;
   }
 
+
+  function areMistakesValid() {
+    return request.resource.data.mistakes is number
+      && request.resource.data.mistakes >= 0
+      && request.resource.data.mistakes <= 5
+      && request.resource.data.mistakes <= request.resource.data.maxMistakes;
+  }
+
+  function areMaxMistakesValid() {
+    return request.resource.data.maxMistakes is number
+      && request.resource.data.maxMistakes >= 1
+      && request.resource.data.maxMistakes <= 5;
+  }
+
+  function isWordValid(word) {
+    return request.resource.data.value == word
+      && request.resource.data.value is string
+      && request.resource.data.value.size() >= 2
+      && request.resource.data.value.size() <= 50
+      && request.resource.data.createdAt is timestamp
+      && request.resource.data.createdAt == request.time;
+  }
+
   match /databases/{database}/documents {
     match /singlePlayerWordGamePreferences/{userUID} {
-      allow read:
-      if isOwner(userUID);
+      allow read: if isOwner(userUID);
       allow create, update:
-      if isOwner(userUID) &&
-      isVerified() &&
-      request.resource.data.maxMistakes is number &&
-      request.resource.data.maxMistakes > 0 &&
-      request.resource.data.maxMistakes < 6;
+      if isOwner(userUID)
+        && isVerified()
+        && (!("maxMistakes" in request.resource.data)
+        || areMaxMistakesValid());
       allow delete: if false;
     }
-    match /singlePlayerWordGames/{userUID=**} {
-      allow read, write: if true;
+
+    match /singlePlayerWordGames/{userUID} {
+      allow read: if isOwner(userUID);
+      allow create, update:
+      if isOwner(userUID)
+        && isVerified()
+        && areMistakesValid()
+        && areMaxMistakesValid();
+      allow delete: if false;
+
+      match /words/{word} {
+        allow read: if isOwner(userUID);
+        allow create:
+        if isOwner(userUID)
+          && isVerified()
+          && isWordValid(word)
+        allow update, delete: if false;
+      }
     }
   }
 }
