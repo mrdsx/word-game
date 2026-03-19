@@ -13,11 +13,11 @@ export async function resetSinglePlayerWords({
   if (token === undefined) {
     throw new FirebaseError(
       "auth/unauthenticated",
-      "User must have auth token.",
+      "User must have auth token",
     );
   }
 
-  const response = await apiFetch("/word-game/single-player", {
+  const response = await apiFetch("/single-player", {
     method: "DELETE",
     body: JSON.stringify({ userUID }),
     credentials: "include",
@@ -28,17 +28,11 @@ export async function resetSinglePlayerWords({
   });
 
   if (response.status === 401) {
-    throw new FirebaseError(
-      "auth/unauthenticated",
-      "User must be authenticated.",
-    );
+    throw new FirebaseError("auth/unauthenticated", "Not authenticated");
   } else if (response.status === 403) {
-    throw new FirebaseError(
-      "auth/permission-denied",
-      "User must have permission.",
-    );
+    throw new FirebaseError("auth/permission-denied", "Permission denied");
   } else if (response.status === 400) {
-    throw new FirebaseError("auth/invalid-argument", "Invalid request.");
+    throw new FirebaseError("auth/invalid-argument", "Invalid request");
   }
 }
 
