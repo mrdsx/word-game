@@ -1,8 +1,8 @@
-import { API_URL } from "./constants";
+import { BACKEND_URL } from "./constants";
 
 export function apiFetch(
   path: `/${string}`,
   init?: RequestInit,
 ): ReturnType<typeof fetch> {
-  return fetch(`${API_URL}${path}`, init);
+  return fetch(`${BACKEND_URL}/api/v1${path}`, init);
 }
