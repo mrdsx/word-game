@@ -3,8 +3,11 @@
   import {
     addWord,
     incrementMistakes,
+    localWordGame,
     resetMistakes,
     resetWords,
+    setIsTimerActive,
+    setRemainingTime,
     words,
   } from "$features/local-word-game/stores";
   import {
@@ -23,10 +26,26 @@
   let input: HTMLInputElement | null = $state(null);
   let submitError: string | null = $state(null);
 
+  $effect(() => {
+    if ($localWordGame.remainingTime <= 0 && $localWordGame.answeringTime > 0) {
+      handleGameOver();
+    }
+  });
+
   const addWordMutation = createMutation(() => ({
     mutationKey: localWordGameQueryKeys.addWord,
     mutationFn: async (word: Word) => {
       return await addWord(word);
+    },
+    onMutate: () => {
+      setIsTimerActive(false);
+    },
+    onSettled: () => {
+      setIsTimerActive(true);
+    },
+    onSuccess: () => {
+      resetMistakes();
+      setRemainingTime($localWordGame.answeringTime);
     },
   }));
 
@@ -39,7 +58,6 @@
       const newWord = input.value;
       await addWordMutation.mutateAsync(newWord);
       input.value = "";
-      resetMistakes();
     } catch (error) {
       submitError =
         (error as { message: string | undefined })?.message ??
@@ -55,6 +73,8 @@
     const enteredWords = words.get().length;
     if (enteredWords === 0) return;
     submitError = `Game over. Your result is ${enteredWords} ${declineWord(enteredWords, ["word", "words"])}.`;
+    setIsTimerActive(false);
+    setRemainingTime(localWordGame.get().answeringTime);
     resetWords();
   }
 </script>

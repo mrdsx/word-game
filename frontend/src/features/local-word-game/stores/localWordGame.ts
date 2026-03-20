@@ -8,6 +8,9 @@ import {
 type LocalWordGame = {
   isPlaying: boolean;
   mistakes: number;
+  remainingTime: number;
+  answeringTime: number;
+  isTimerActive: boolean;
 };
 
 export const localWordGame = persistentAtom<LocalWordGame>(
@@ -15,6 +18,9 @@ export const localWordGame = persistentAtom<LocalWordGame>(
   {
     isPlaying: false,
     mistakes: 0,
+    remainingTime: 0,
+    answeringTime: 0,
+    isTimerActive: false,
   },
   {
     encode: JSON.stringify,
@@ -24,8 +30,14 @@ export const localWordGame = persistentAtom<LocalWordGame>(
 
 export function startNewWordGame(): void {
   resetWords();
-  localWordGame.set({ isPlaying: true, mistakes: 0 });
-  const maxMistakes = localWordGamePreferences.get().maxMistakes;
+  const { answeringTime, maxMistakes } = localWordGamePreferences.get();
+  localWordGame.set({
+    isPlaying: true,
+    mistakes: 0,
+    remainingTime: answeringTime,
+    answeringTime,
+    isTimerActive: false,
+  });
   setCurrentMaxMistakes(maxMistakes);
 }
 
@@ -39,7 +51,11 @@ export function stopWordGame(): void {
 
 export function resetWordGame(): void {
   resetWords();
-  localWordGame.set({ ...localWordGame.get(), mistakes: 0 });
+  localWordGame.set({
+    ...localWordGame.get(),
+    mistakes: 0,
+    isTimerActive: false,
+  });
 }
 
 export function incrementMistakes(onGameOver?: () => void): void {
@@ -60,4 +76,16 @@ export function incrementMistakes(onGameOver?: () => void): void {
 
 export function resetMistakes(): void {
   localWordGame.set({ ...localWordGame.get(), mistakes: 0 });
+}
+
+export function setRemainingTime(
+  remainingTime: LocalWordGame["remainingTime"],
+): void {
+  localWordGame.set({ ...localWordGame.get(), remainingTime });
+}
+
+export function setIsTimerActive(
+  isTimerActive: LocalWordGame["isTimerActive"],
+): void {
+  localWordGame.set({ ...localWordGame.get(), isTimerActive });
 }

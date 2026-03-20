@@ -18,6 +18,7 @@
   } from "$lib/components/ui/alert-dialog";
   import { Button, buttonVariants } from "$lib/components/ui/button";
   import { Label } from "$lib/components/ui/label";
+  import AnsweringTimeNativeSelect from "./AnsweringTimeNativeSelect.svelte";
 
   const NEW_GAME_BUTTON_TEXT = "New game";
 
@@ -36,10 +37,14 @@
   class="card flex w-full flex-col items-center gap-4"
   onsubmit={handleSubmit}
 >
-  <div class="flex w-full justify-between space-y-2">
+  <fieldset class="flex w-full justify-between">
     <Label>Max consecutive mistakes</Label>
     <MaxMistakesNativeSelect />
-  </div>
+  </fieldset>
+  <fieldset class="flex w-full justify-between">
+    <Label>Answering time</Label>
+    <AnsweringTimeNativeSelect />
+  </fieldset>
   <div class="flex gap-2 *:w-25">
     <Button
       variant="outline"
