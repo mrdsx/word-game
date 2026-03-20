@@ -15,12 +15,12 @@
   import { Label } from "$lib/components/ui/label";
   import { LoadingSwap } from "$lib/components/ui/loading-swap";
   import { Skeleton } from "$lib/components/ui/skeleton";
-  import { db } from "$lib/firebase";
   import { navigate } from "$lib/router";
   import { cn } from "$lib/utils";
   import { createMutation, createQuery } from "@tanstack/svelte-query";
-  import { collection, onSnapshot } from "firebase/firestore";
+  import { onSnapshot } from "firebase/firestore";
   import { toast } from "svelte-sonner";
+  import { singlePlayerWordsCollection } from "../database/collections";
   import { startNewGameMutationOptions } from "../mutationOptions";
   import { singlePlayerWordGameQueryOptions } from "../queryOptions";
   import MaxMistakesNativeSelect from "./MaxMistakesNativeSelect.svelte";
@@ -58,10 +58,12 @@
   $effect(() => {
     if (userUID === undefined) return;
 
-    const wordsRef = collection(db, "singlePlayerWordGames", userUID, "words");
-    const unsubscribe = onSnapshot(wordsRef, async (snapshot) => {
-      singlePlayerWordsLength = snapshot.docs.length;
-    });
+    const unsubscribe = onSnapshot(
+      singlePlayerWordsCollection(userUID),
+      async (snapshot) => {
+        singlePlayerWordsLength = snapshot.docs.length;
+      },
+    );
 
     return () => {
       unsubscribe();

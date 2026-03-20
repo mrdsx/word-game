@@ -2,7 +2,7 @@ import { authState } from "$features/auth/stores";
 import { apiFetch } from "$lib/api";
 import { FirebaseError } from "firebase/app";
 import { setDoc } from "firebase/firestore";
-import { userWordGamePreferencesDoc } from "./references/singlePlayerWordGamePreferences";
+import { singlePlayerWordGamePreferencesDoc } from "./database/documents";
 
 export async function resetSinglePlayerWords({
   userUID,
@@ -44,7 +44,7 @@ export async function updateMaxMistakes({
   userUID: string;
 }): Promise<void> {
   await setDoc(
-    userWordGamePreferencesDoc(userUID),
+    singlePlayerWordGamePreferencesDoc(userUID),
     { maxMistakes },
     { merge: true },
   );

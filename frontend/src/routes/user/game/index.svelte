@@ -5,6 +5,8 @@
     SinglePlayerWordGameActions,
     SinglePlayerWordsArea,
   } from "$features/single-player-word-game/components";
+  import { singlePlayerWordsCollection } from "$features/single-player-word-game/database/collections";
+  import { singlePlayerWordGameDoc } from "$features/single-player-word-game/database/documents";
   import { resetSinglePlayerWords } from "$features/single-player-word-game/services";
   import {
     setSinglePlayerWordGame,
@@ -16,16 +18,9 @@
     SinglePlayerWord,
     SinglePlayerWordGame,
   } from "$features/single-player-word-game/types";
-  import { db } from "$lib/firebase";
+  import type { Word } from "$features/word-game/types";
   import { declineWord } from "$lib/utils";
-  import {
-    collection,
-    doc,
-    onSnapshot,
-    orderBy,
-    query,
-    setDoc,
-  } from "firebase/firestore";
+  import { onSnapshot, orderBy, query, setDoc } from "firebase/firestore";
 
   const singlePlayerWords = $derived($singlePlayerWordGameState.words);
   const userUID = $derived($authState.currentUser?.uid);
@@ -34,7 +29,7 @@
     if (userUID === undefined) return;
 
     const unsubscribe = onSnapshot(
-      doc(db, "singlePlayerWordGames", userUID),
+      singlePlayerWordGameDoc(userUID),
       async (doc) => {
         const wordGameData = doc.data() as SinglePlayerWordGame | undefined;
         const isGameLost =
@@ -61,15 +56,14 @@
   $effect(() => {
     if (userUID === undefined) return;
 
-    const wordsRef = collection(db, "singlePlayerWordGames", userUID, "words");
+    const wordsRef = singlePlayerWordsCollection(userUID);
     const recentWords = query(wordsRef, orderBy("createdAt", "asc"));
     const unsubscribe = onSnapshot(
       recentWords,
       async (snapshot) => {
-        const wordDocuments = snapshot.docs.map((word) =>
-          word.data(),
-        ) as SinglePlayerWord[];
-        const words = wordDocuments.map((word) => word.value);
+        const words = snapshot.docs.map(
+          (word) => (word.data() as SinglePlayerWord).value,
+        ) as Word[];
         setSinglePlayerWords(words);
       },
       () => {
@@ -92,7 +86,7 @@
     );
 
     await setDoc(
-      doc(db, "singlePlayerWordGames", userUID),
+      singlePlayerWordGameDoc(userUID),
       { mistakes: 0 },
       { merge: true },
     );

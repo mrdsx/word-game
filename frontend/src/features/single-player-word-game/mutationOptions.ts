@@ -3,10 +3,13 @@ import { validateDictionaryWord } from "$features/dictionary/utils";
 import type { Word } from "$features/word-game/types";
 import { addWordUseCase } from "$features/word-game/useCases";
 import { normalizeWord, validateWord } from "$features/word-game/utils";
-import { db } from "$lib/firebase";
 import type { MutationOptions } from "@tanstack/svelte-query";
 import type { FirebaseError } from "firebase/app";
-import { doc, serverTimestamp, setDoc, Timestamp } from "firebase/firestore";
+import { serverTimestamp, setDoc, Timestamp } from "firebase/firestore";
+import {
+  singlePlayerWordDoc,
+  singlePlayerWordGameDoc,
+} from "./database/documents";
 import { singlePlayerWordGameQueryKeys } from "./queryKeys";
 import { resetSinglePlayerWords, updateMaxMistakes } from "./services";
 import type { SinglePlayerWord, SinglePlayerWordGame } from "./types";
@@ -71,19 +74,17 @@ export const addWordMutationOptions = {
         const newWordGame: Partial<SinglePlayerWordGame> = {
           mistakes: 0,
         };
-        await setDoc(doc(db, "singlePlayerWordGames", userUID), newWordGame, {
+        await setDoc(singlePlayerWordGameDoc(userUID), newWordGame, {
           merge: true,
         });
 
-        const newWordDocument: Partial<SinglePlayerWord> = {
+        const newWordDocument: SinglePlayerWord = {
           value: newWord,
           createdAt: serverTimestamp() as Timestamp,
         };
-        await setDoc(
-          doc(db, "singlePlayerWordGames", userUID, "words", newWord),
-          newWordDocument,
-          { merge: true },
-        );
+        await setDoc(singlePlayerWordDoc(userUID, newWord), newWordDocument, {
+          merge: true,
+        });
       },
     });
   },
@@ -99,7 +100,7 @@ export const incrementMistakesMutationOptions = {
     wordGame: SinglePlayerWordGame;
   }) => {
     await setDoc(
-      doc(db, "singlePlayerWordGames", userUID),
+      singlePlayerWordGameDoc(userUID),
       { mistakes: wordGame.mistakes + 1 },
       { merge: true },
     );
@@ -127,7 +128,7 @@ export const startNewGameMutationOptions = {
       mistakes: 0,
     };
 
-    await setDoc(doc(db, "singlePlayerWordGames", userUID), newWordGame, {
+    await setDoc(singlePlayerWordGameDoc(userUID), newWordGame, {
       merge: true,
     });
     await resetSinglePlayerWords({ userUID });

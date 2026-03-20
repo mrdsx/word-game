@@ -1,9 +1,11 @@
 import { authState } from "$features/auth/stores";
-import { db } from "$lib/firebase";
 import { queryOptions, type CreateQueryOptions } from "@tanstack/svelte-query";
-import { doc, DocumentSnapshot, getDoc } from "firebase/firestore";
+import { DocumentSnapshot, getDoc } from "firebase/firestore";
+import {
+  singlePlayerWordGameDoc,
+  singlePlayerWordGamePreferencesDoc,
+} from "./database/documents";
 import { singlePlayerWordGameQueryKeys } from "./queryKeys";
-import { userWordGamePreferencesDoc } from "./references/singlePlayerWordGamePreferences";
 import type {
   SinglePlayerWordGame,
   SinglePlayerWordGamePreferences,
@@ -28,11 +30,11 @@ export const singlePlayerWordGameQueryOptions: SinglePlayerWordGameQueryOptions 
     queryKey: singlePlayerWordGameQueryKeys.singlePlayer,
     queryFn: async () => {
       const userUID = authState.get().currentUser?.uid ?? "";
-      const singlePlayerWordGameDoc = doc(db, "singlePlayerWordGames", userUID);
 
       const docSnapshot = (await getDoc(
-        singlePlayerWordGameDoc,
+        singlePlayerWordGameDoc(userUID),
       )) as DocumentSnapshot<SinglePlayerWordGame>;
+
       return docSnapshot.data() ?? null;
     },
   });
@@ -42,13 +44,11 @@ export const singlePlayerWordGamePreferencesQueryOptions: SinglePlayerWordGamePr
     queryKey: singlePlayerWordGameQueryKeys.preferences,
     queryFn: async () => {
       const userUID = authState.get().currentUser?.uid ?? "";
-      const userPreferencesDoc = userWordGamePreferencesDoc(userUID);
 
       const docSnapshot = (await getDoc(
-        userPreferencesDoc,
+        singlePlayerWordGamePreferencesDoc(userUID),
       )) as DocumentSnapshot<SinglePlayerWordGamePreferences>;
-      return docSnapshot.exists()
-        ? (docSnapshot.data() as SinglePlayerWordGamePreferences)
-        : null;
+
+      return docSnapshot.data() ?? null;
     },
   });
