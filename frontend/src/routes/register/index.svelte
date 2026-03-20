@@ -25,7 +25,7 @@
   const registerMutation = createMutation(() => ({
     ...registerMutationOptions,
     onSuccess: async () => {
-      await navigate("/register/verify");
+      await navigate("/verify-email");
     },
     onError: (error: AuthError) => {
       const firebaseError = mapFirebaseErrorCode(error.code);
