@@ -6,7 +6,8 @@
     variants: {
       variant: {
         default: "bg-card text-card-foreground",
-        success: "bg-success border-success-border text-success-foreground",
+        success:
+          "bg-success border-success-border text-success-foreground *:data-[slot=alert-description]:text-success-foreground/70",
         destructive:
           "text-destructive bg-card *:data-[slot=alert-description]:text-destructive/90 [&>svg]:text-current",
         warning:
