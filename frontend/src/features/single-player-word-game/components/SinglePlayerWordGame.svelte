@@ -14,26 +14,16 @@
   import { Button, buttonVariants } from "$lib/components/ui/button";
   import { Label } from "$lib/components/ui/label";
   import { LoadingSwap } from "$lib/components/ui/loading-swap";
-  import {
-    NativeSelect,
-    NativeSelectOption,
-  } from "$lib/components/ui/native-select";
   import { Skeleton } from "$lib/components/ui/skeleton";
-  import { db, mapFirebaseErrorCode } from "$lib/firebase";
+  import { db } from "$lib/firebase";
   import { navigate } from "$lib/router";
+  import { cn } from "$lib/utils";
   import { createMutation, createQuery } from "@tanstack/svelte-query";
-  import type { FirebaseError } from "firebase/app";
   import { collection, onSnapshot } from "firebase/firestore";
   import { toast } from "svelte-sonner";
-  import {
-    startNewGameMutationOptions,
-    updateMaxMistakesMutationOptions,
-  } from "../mutationOptions";
-  import {
-    singlePlayerWordGamePreferencesQueryOptions,
-    singlePlayerWordGameQueryOptions,
-  } from "../queryOptions";
-  import type { SinglePlayerWord } from "../types";
+  import { startNewGameMutationOptions } from "../mutationOptions";
+  import { singlePlayerWordGameQueryOptions } from "../queryOptions";
+  import MaxMistakesNativeSelect from "./MaxMistakesNativeSelect.svelte";
 
   // TODO: refactor
 
@@ -42,20 +32,13 @@
   let maxMistakesSelectRef: HTMLSelectElement | null = $state(null);
   let singlePlayerWordsLength = $state(0);
   const userUID = $derived($authState.currentUser?.uid);
+  const emailVerified = $derived($authState.currentUser?.emailVerified);
 
   const wordGameQuery = createQuery(() => ({
     ...singlePlayerWordGameQueryOptions,
     enabled: $authState.currentUser !== null,
   }));
 
-  const wordGamePreferencesQuery = createQuery(() => ({
-    ...singlePlayerWordGamePreferencesQueryOptions,
-    enabled: $authState.currentUser !== null,
-  }));
-
-  const defaultMaxMistakes = $derived(
-    wordGamePreferencesQuery.data?.maxMistakes ?? 5,
-  );
   const canContinueGame = $derived(
     wordGameQuery.data !== undefined &&
       wordGameQuery.data !== null &&
@@ -72,48 +55,18 @@
     },
   }));
 
-  const updateMaxMistakesMutation = createMutation(() => ({
-    ...updateMaxMistakesMutationOptions,
-    onError: (error: FirebaseError) => {
-      const message = mapFirebaseErrorCode(error.code);
-      toast.error(message ?? "Failed to update max mistakes.");
-      if (maxMistakesSelectRef !== null) {
-        maxMistakesSelectRef.value = String(defaultMaxMistakes);
-      }
-    },
-  }));
-
-  $effect(() => {
-    if (maxMistakesSelectRef !== null) {
-      maxMistakesSelectRef.value = String(defaultMaxMistakes);
-    }
-  });
-
   $effect(() => {
     if (userUID === undefined) return;
 
     const wordsRef = collection(db, "singlePlayerWordGames", userUID, "words");
     const unsubscribe = onSnapshot(wordsRef, async (snapshot) => {
-      const wordDocuments = snapshot.docs.map((word) =>
-        word.data(),
-      ) as SinglePlayerWord[];
-      singlePlayerWordsLength = wordDocuments.length;
+      singlePlayerWordsLength = snapshot.docs.length;
     });
 
     return () => {
       unsubscribe();
     };
   });
-
-  async function handleUpdateMaxMistakes(
-    event: Event & {
-      currentTarget: EventTarget & HTMLSelectElement;
-    },
-  ): Promise<void> {
-    const maxMistakes = Number(event.currentTarget.value);
-    if (userUID === undefined || isNaN(maxMistakes)) return;
-    updateMaxMistakesMutation.mutate({ maxMistakes, userUID });
-  }
 
   async function handleStartNewGame(): Promise<void> {
     if (userUID === undefined || maxMistakesSelectRef === null) return;
@@ -125,78 +78,77 @@
   }
 </script>
 
-<form class="card flex w-full flex-col items-center gap-4">
-  <div class="flex w-full justify-between space-y-2">
-    <Label>Max consecutive mistakes</Label>
-    {#if wordGamePreferencesQuery.isPending}
-      <Skeleton class="h-9 w-14.5" />
-    {:else}
-      <NativeSelect
-        value={defaultMaxMistakes}
-        disabled={wordGamePreferencesQuery.isPending}
-        onchange={handleUpdateMaxMistakes}
-        bind:ref={maxMistakesSelectRef}
-      >
-        <NativeSelectOption value="1">1</NativeSelectOption>
-        <NativeSelectOption value="2">2</NativeSelectOption>
-        <NativeSelectOption value="3">3</NativeSelectOption>
-        <NativeSelectOption value="4">4</NativeSelectOption>
-        <NativeSelectOption value="5">5</NativeSelectOption>
-      </NativeSelect>
-    {/if}
-  </div>
-  <div class="flex gap-2 *:w-25">
-    {#if wordGameQuery.isPending}
-      <Skeleton class="h-9" />
-    {:else}
-      <Button
-        variant="outline"
-        disabled={!canContinueGame || wordGameQuery.isPending}
-        onclick={() => navigate("/user/game")}
-      >
-        Continue
-      </Button>
-    {/if}
-    {#if wordGameQuery.isPending}
-      <Skeleton class="h-9" />
-    {:else if canContinueGame}
-      <AlertDialog>
-        <AlertDialogTrigger
-          class={buttonVariants({ variant: "default" })}
-          type="button"
+<div class=" card relative size-full">
+  {#if !emailVerified}
+    <div
+      class="absolute inset-0 z-1 mx-4 grid place-content-center text-center font-semibold"
+    >
+      Verify the email to start the game
+    </div>
+  {/if}
+  <form
+    class={cn(
+      "flex w-full flex-col items-center gap-4",
+      !emailVerified && "pointer-events-none opacity-60 blur-[4px]",
+    )}
+  >
+    <fieldset class="flex w-full justify-between space-y-2">
+      <Label>Max consecutive mistakes</Label>
+      <MaxMistakesNativeSelect bind:maxMistakesSelectRef />
+    </fieldset>
+    <div class="flex gap-2 *:w-25">
+      {#if wordGameQuery.isPending}
+        <Skeleton class="h-9" />
+      {:else}
+        <Button
+          variant="outline"
           disabled={!canContinueGame || wordGameQuery.isPending}
+          onclick={() => navigate("/user/game")}
         >
-          {NEW_GAME_BUTTON_TEXT}
-        </AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              You still have game in progress. It'll be lost.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>No</AlertDialogCancel>
-            <AlertDialogAction
-              disabled={startNewGameMutation.isPending}
-              onclick={handleStartNewGame}
-            >
-              <LoadingSwap isLoading={startNewGameMutation.isPending}>
-                Yes
-              </LoadingSwap>
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    {:else}
-      <Button
-        disabled={wordGameQuery.isPending || startNewGameMutation.isPending}
-        onclick={handleStartNewGame}
-      >
-        <LoadingSwap isLoading={startNewGameMutation.isPending}>
-          {NEW_GAME_BUTTON_TEXT}
-        </LoadingSwap>
-      </Button>
-    {/if}
-  </div>
-</form>
+          Continue
+        </Button>
+      {/if}
+      {#if wordGameQuery.isPending}
+        <Skeleton class="h-9" />
+      {:else if canContinueGame}
+        <AlertDialog>
+          <AlertDialogTrigger
+            class={buttonVariants({ variant: "default" })}
+            type="button"
+            disabled={!canContinueGame || wordGameQuery.isPending}
+          >
+            {NEW_GAME_BUTTON_TEXT}
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                You still have game in progress. It'll be lost.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>No</AlertDialogCancel>
+              <AlertDialogAction
+                disabled={startNewGameMutation.isPending}
+                onclick={handleStartNewGame}
+              >
+                <LoadingSwap isLoading={startNewGameMutation.isPending}>
+                  Yes
+                </LoadingSwap>
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      {:else}
+        <Button
+          disabled={wordGameQuery.isPending || startNewGameMutation.isPending}
+          onclick={handleStartNewGame}
+        >
+          <LoadingSwap isLoading={startNewGameMutation.isPending}>
+            {NEW_GAME_BUTTON_TEXT}
+          </LoadingSwap>
+        </Button>
+      {/if}
+    </div>
+  </form>
+</div>
