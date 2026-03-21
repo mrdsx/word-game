@@ -5,7 +5,7 @@ from fastapi.security import OAuth2PasswordBearer
 from firebase_admin.auth import InvalidIdTokenError, verify_id_token
 from firebase_admin.firestore_async import client as create_firestore_client
 
-from core.types import AsyncFirestore
+from core.firebase import AsyncFirestore
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 

@@ -1,8 +1,6 @@
 import os
 
 from dotenv import load_dotenv
-from firebase_admin import initialize_app
-from firebase_admin.credentials import Certificate
 
 load_dotenv()
 
@@ -26,7 +24,3 @@ service_account = {  # pyright: ignore[reportUnknownVariableType]
     "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40classic-word-game.iam.gserviceaccount.com",
     "universe_domain": "googleapis.com",
 }
-
-
-def initialize_firebase() -> None:
-    initialize_app(credential=Certificate(service_account))

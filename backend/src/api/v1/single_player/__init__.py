@@ -3,7 +3,7 @@ from typing import Annotated, Any
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from api.dependencies import decode_firebase_token, get_async_firestore
-from core.types import AsyncFirestore
+from core.firebase import AsyncFirestore
 from database.single_player.collections import single_player_words
 from schemas.api import APIResponse
 
