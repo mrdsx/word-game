@@ -1,7 +1,7 @@
 import os
 
-import firebase_admin
 from dotenv import load_dotenv
+from firebase_admin import initialize_app
 from firebase_admin.credentials import Certificate
 
 load_dotenv()
@@ -29,6 +29,4 @@ service_account = {  # pyright: ignore[reportUnknownVariableType]
 
 
 def initialize_firebase() -> None:
-    firebase_admin.initialize_app(  # pyright: ignore[reportUnknownMemberType]
-        credential=Certificate(service_account)
-    )
+    initialize_app(credential=Certificate(service_account))
