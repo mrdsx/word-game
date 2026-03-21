@@ -4,10 +4,10 @@ from typing import Any
 
 from fastapi import FastAPI
 
-from core.firebase import create_firebase
+from core.firebase import initialize_firebase
 
 
 @asynccontextmanager
-async def lifespan(_app: FastAPI) -> AsyncGenerator[None, Any]:
-    create_firebase()
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, Any]:
+    initialize_firebase()
     yield

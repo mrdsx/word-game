@@ -6,6 +6,7 @@ from firebase_admin.credentials import Certificate
 
 load_dotenv()
 
+
 fake_private_key = (
     "-----BEGIN PRIVATE KEY-----\nfake-private-key\n-----END PRIVATE KEY-----\n"
 )
@@ -16,7 +17,7 @@ service_account = {  # pyright: ignore[reportUnknownVariableType]
     "project_id": "classic-word-game",
     "private_key": os.getenv(
         "FIREBASE_PRIVATE_KEY",
-        fake_private_key,
+        fake_private_key,  #! firebase don't work with fake private key
     ).replace("\\n", "\n"),
     "client_email": os.getenv("FIREBASE_CLIENT_EMAIL", fake_client_email),
     "auth_uri": "https://accounts.google.com/o/oauth2/auth",
@@ -27,7 +28,7 @@ service_account = {  # pyright: ignore[reportUnknownVariableType]
 }
 
 
-def create_firebase() -> None:
+def initialize_firebase() -> None:
     firebase_admin.initialize_app(  # pyright: ignore[reportUnknownMemberType]
         credential=Certificate(service_account)
     )
