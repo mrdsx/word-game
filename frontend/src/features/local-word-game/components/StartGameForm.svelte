@@ -5,22 +5,10 @@
     startWordGame,
     words,
   } from "$features/local-word-game/stores";
-  import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-  } from "$lib/components/ui/alert-dialog";
-  import { Button, buttonVariants } from "$lib/components/ui/button";
+  import NewGameAlertDialogView from "$lib/components/NewGameAlertDialogView.svelte";
+  import { Button } from "$lib/components/ui/button";
   import { Label } from "$lib/components/ui/label";
   import AnsweringTimeNativeSelect from "./AnsweringTimeNativeSelect.svelte";
-
-  const NEW_GAME_BUTTON_TEXT = "New game";
 
   let canContinueGame = $derived($words.length > 0);
 
@@ -54,30 +42,9 @@
       Continue
     </Button>
     {#if canContinueGame}
-      <AlertDialog>
-        <AlertDialogTrigger
-          class={buttonVariants({ variant: "default" })}
-          type="button"
-        >
-          {NEW_GAME_BUTTON_TEXT}
-        </AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              You still have game in progress. It'll be lost.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>No</AlertDialogCancel>
-            <AlertDialogAction onclick={startNewWordGame}>
-              Yes
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <NewGameAlertDialogView {startNewWordGame} />
     {:else}
-      <Button type="submit">{NEW_GAME_BUTTON_TEXT}</Button>
+      <Button type="submit">New game</Button>
     {/if}
   </div>
 </form>

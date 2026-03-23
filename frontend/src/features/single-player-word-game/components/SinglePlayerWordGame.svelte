@@ -1,17 +1,7 @@
 <script lang="ts">
   import { authState } from "$features/auth/stores";
-  import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-  } from "$lib/components/ui/alert-dialog";
-  import { Button, buttonVariants } from "$lib/components/ui/button";
+  import NewGameAlertDialogView from "$lib/components/NewGameAlertDialogView.svelte";
+  import { Button } from "$lib/components/ui/button";
   import { Label } from "$lib/components/ui/label";
   import { LoadingSwap } from "$lib/components/ui/loading-swap";
   import { Skeleton } from "$lib/components/ui/skeleton";
@@ -24,10 +14,6 @@
   import { startNewGameMutationOptions } from "../mutationOptions";
   import { singlePlayerWordGameQueryOptions } from "../queryOptions";
   import MaxMistakesNativeSelect from "./MaxMistakesNativeSelect.svelte";
-
-  // TODO: refactor
-
-  const NEW_GAME_BUTTON_TEXT = "New game";
 
   let maxMistakesSelectRef: HTMLSelectElement | null = $state(null);
   let singlePlayerWordsLength = $state(0);
@@ -70,7 +56,7 @@
     };
   });
 
-  async function handleStartNewGame(): Promise<void> {
+  async function startNewWordGame(): Promise<void> {
     if (userUID === undefined || maxMistakesSelectRef === null) return;
 
     const maxMistakes = Number(maxMistakesSelectRef.value);
@@ -104,50 +90,27 @@
       {:else}
         <Button
           variant="outline"
-          disabled={!canContinueGame || wordGameQuery.isPending}
+          disabled={!canContinueGame}
           onclick={() => navigate("/user/game")}
         >
           Continue
         </Button>
       {/if}
+
       {#if wordGameQuery.isPending}
         <Skeleton class="h-9" />
       {:else if canContinueGame}
-        <AlertDialog>
-          <AlertDialogTrigger
-            class={buttonVariants({ variant: "default" })}
-            type="button"
-            disabled={!canContinueGame || wordGameQuery.isPending}
-          >
-            {NEW_GAME_BUTTON_TEXT}
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-              <AlertDialogDescription>
-                You still have game in progress. It'll be lost.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>No</AlertDialogCancel>
-              <AlertDialogAction
-                disabled={startNewGameMutation.isPending}
-                onclick={handleStartNewGame}
-              >
-                <LoadingSwap isLoading={startNewGameMutation.isPending}>
-                  Yes
-                </LoadingSwap>
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <NewGameAlertDialogView
+          isActionDisabled={startNewGameMutation.isPending}
+          {startNewWordGame}
+        />
       {:else}
         <Button
-          disabled={wordGameQuery.isPending || startNewGameMutation.isPending}
-          onclick={handleStartNewGame}
+          disabled={startNewGameMutation.isPending}
+          onclick={startNewWordGame}
         >
           <LoadingSwap isLoading={startNewGameMutation.isPending}>
-            {NEW_GAME_BUTTON_TEXT}
+            New game
           </LoadingSwap>
         </Button>
       {/if}
