@@ -2,7 +2,6 @@
   import {
     localWordGame,
     localWordGamePreferences,
-    setIsTimerActive,
     words,
   } from "$features/local-word-game/stores";
   import { WordGameInfo, WordsList } from "$features/word-game/components";
@@ -10,14 +9,6 @@
   import LocalWordGameActions from "./LocalWordGameActions.svelte";
 
   const reversedWords = $derived(reverseWords($words));
-
-  $effect(() => {
-    if ($words.length > 0) {
-      setIsTimerActive(true);
-    } else {
-      setIsTimerActive(false);
-    }
-  });
 </script>
 
 <div class="flex w-full flex-col items-center gap-2">

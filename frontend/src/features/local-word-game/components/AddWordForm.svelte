@@ -1,7 +1,5 @@
 <script lang="ts">
-  import { localWordGameQueryKeys } from "$features/local-word-game/queryKeys";
   import {
-    addWord,
     incrementMistakes,
     localWordGame,
     resetMistakes,
@@ -15,63 +13,55 @@
     MIN_WORD_LENGTH,
   } from "$features/word-game/constants";
   import { WordGameError } from "$features/word-game/exceptions";
-  import type { Word } from "$features/word-game/types";
   import { Button } from "$lib/components/ui/button";
   import { Input } from "$lib/components/ui/input";
   import { LoadingSwap } from "$lib/components/ui/loading-swap";
   import { declineWord } from "$lib/utils";
   import { createMutation } from "@tanstack/svelte-query";
+  import { addWordMutationOptions } from "../mutationOptions";
 
-  let canAddWords: boolean = $state(true);
   let input: HTMLInputElement | null = $state(null);
   let submitError: string | null = $state(null);
 
   $effect(() => {
-    if ($localWordGame.remainingTime <= 0 && $localWordGame.answeringTime > 0) {
+    const isGameLost =
+      $localWordGame.remainingTime <= 0 && $localWordGame.answeringTime > 0;
+    if (isGameLost) {
       handleGameOver();
     }
   });
 
   const addWordMutation = createMutation(() => ({
-    mutationKey: localWordGameQueryKeys.addWord,
-    mutationFn: async (word: Word) => {
-      return await addWord(word);
-    },
-    onMutate: () => {
-      setIsTimerActive(false);
-    },
-    onSettled: () => {
-      setIsTimerActive(true);
-    },
+    ...addWordMutationOptions,
     onSuccess: () => {
+      if (input !== null) input.value = "";
       resetMistakes();
       setRemainingTime($localWordGame.answeringTime);
+    },
+    onError: (error) => {
+      setIsTimerActive(true);
+      submitError =
+        error?.message ?? "Something went wrong. Please, try again.";
+
+      if (error instanceof WordGameError) {
+        incrementMistakes(handleGameOver);
+      }
     },
   }));
 
   async function handleSubmit(event: Event): Promise<void> {
     event.preventDefault();
     submitError = null;
-    if (input === null || !canAddWords) return;
+    if (input === null) return;
 
-    try {
-      const newWord = input.value;
-      await addWordMutation.mutateAsync(newWord);
-      input.value = "";
-    } catch (error) {
-      submitError =
-        (error as { message: string | undefined })?.message ??
-        "Something went wrong. Please, try again.";
-
-      if (error instanceof WordGameError) {
-        incrementMistakes(handleGameOver);
-      }
-    }
+    const newWord = input.value;
+    addWordMutation.mutate(newWord);
   }
 
   function handleGameOver(): void {
     const enteredWords = words.get().length;
     if (enteredWords === 0) return;
+
     submitError = `Game over. Your result is ${enteredWords} ${declineWord(enteredWords, ["word", "words"])}.`;
     setIsTimerActive(false);
     setRemainingTime(localWordGame.get().answeringTime);
@@ -86,18 +76,13 @@
       minlength={MIN_WORD_LENGTH}
       maxlength={MAX_WORD_LENGTH}
       aria-invalid={submitError !== null}
-      disabled={!canAddWords}
       bind:ref={input}
     />
     {#if submitError !== null}
       <p class="text-destructive text-sm">{submitError}</p>
     {/if}
   </div>
-  <Button
-    class="w-25"
-    type="submit"
-    disabled={addWordMutation.isPending || !canAddWords}
-  >
+  <Button class="w-25" type="submit" disabled={addWordMutation.isPending}>
     <LoadingSwap isLoading={addWordMutation.isPending} fallback="Adding">
       Add
     </LoadingSwap>

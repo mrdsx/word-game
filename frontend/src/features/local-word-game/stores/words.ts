@@ -4,6 +4,7 @@ import type { Word } from "$features/word-game/types";
 import { addWordUseCase } from "$features/word-game/useCases";
 import { normalizeWord, validateWord } from "$features/word-game/utils";
 import { persistentAtom } from "@nanostores/persistent";
+import { setIsTimerActive } from "./localWordGame";
 
 export const words = persistentAtom<Word[]>("words", [], {
   encode: JSON.stringify,
@@ -18,9 +19,11 @@ export async function addWord(newWord: Word): Promise<void> {
     validateWord,
     fetchDictionaryWord,
     validateDictionaryWord,
-    addWord: (newWord, prevWords) => {
+    addWord: (newWord) => {
+      const prevWords = words.get();
       words.set([...prevWords, newWord]);
     },
+    setIsTimerActive,
   });
 }
 

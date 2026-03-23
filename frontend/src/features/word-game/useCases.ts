@@ -7,7 +7,8 @@ type AddWordParams = {
   validateWord: (word: Word, words: Word[]) => void;
   fetchDictionaryWord: (word: Word) => Promise<unknown>;
   validateDictionaryWord: (data: unknown) => void;
-  addWord: (newWord: Word, prevWords: Word[]) => void | Promise<void>;
+  addWord: (newWord: Word) => void | Promise<void>;
+  setIsTimerActive?: (isTimerActive: boolean) => void;
 };
 
 export async function addWordUseCase({
@@ -18,12 +19,15 @@ export async function addWordUseCase({
   fetchDictionaryWord,
   validateDictionaryWord,
   addWord,
+  setIsTimerActive,
 }: AddWordParams): Promise<void> {
   const word = normalizeWord(newWord);
   validateWord(word, words);
 
+  setIsTimerActive?.(false);
   const dictionaryWord = await fetchDictionaryWord(word);
   validateDictionaryWord(dictionaryWord);
 
-  await addWord(word, words);
+  await addWord(word);
+  setIsTimerActive?.(true);
 }
