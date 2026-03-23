@@ -14,7 +14,7 @@ export function getDictionaryWordQueryOptions(word: string) {
 
       return dictionaryWord;
     },
-    gcTime: 1000 * 60 * 10,
-    staleTime: 1000 * 60,
+    gcTime: 1000 * 60 * 60 * 5,
+    staleTime: 1000 * 60 * 60,
   };
 }
