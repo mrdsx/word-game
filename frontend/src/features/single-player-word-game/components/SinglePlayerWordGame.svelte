@@ -1,9 +1,9 @@
 <script lang="ts">
   import { authState } from "$features/auth/stores";
   import NewGameAlertDialogView from "$lib/components/NewGameAlertDialogView.svelte";
+  import NewGameButtonView from "$lib/components/NewGameButtonView.svelte";
   import { Button } from "$lib/components/ui/button";
   import { Label } from "$lib/components/ui/label";
-  import { LoadingSwap } from "$lib/components/ui/loading-swap";
   import { Skeleton } from "$lib/components/ui/skeleton";
   import { navigate } from "$lib/router";
   import { cn } from "$lib/utils";
@@ -105,14 +105,7 @@
           {startNewWordGame}
         />
       {:else}
-        <Button
-          disabled={startNewGameMutation.isPending}
-          onclick={startNewWordGame}
-        >
-          <LoadingSwap isLoading={startNewGameMutation.isPending}>
-            New game
-          </LoadingSwap>
-        </Button>
+        <NewGameButtonView disabled={startNewGameMutation.isPending} />
       {/if}
     </div>
   </form>
