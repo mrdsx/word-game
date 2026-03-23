@@ -1,8 +1,8 @@
 <script lang="ts">
   import { authState } from "$features/auth/stores";
+  import ContinueGameButtonView from "$lib/components/ContinueGameButtonView.svelte";
   import NewGameAlertDialogView from "$lib/components/NewGameAlertDialogView.svelte";
   import NewGameButtonView from "$lib/components/NewGameButtonView.svelte";
-  import { Button } from "$lib/components/ui/button";
   import { Label } from "$lib/components/ui/label";
   import { Skeleton } from "$lib/components/ui/skeleton";
   import { navigate } from "$lib/router";
@@ -88,13 +88,10 @@
       {#if wordGameQuery.isPending}
         <Skeleton class="h-9" />
       {:else}
-        <Button
-          variant="outline"
+        <ContinueGameButtonView
           disabled={!canContinueGame}
           onclick={() => navigate("/user/game")}
-        >
-          Continue
-        </Button>
+        />
       {/if}
 
       {#if wordGameQuery.isPending}

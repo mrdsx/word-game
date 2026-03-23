@@ -1,14 +1,10 @@
 <script lang="ts">
-  import { MaxMistakesNativeSelect } from "$features/local-word-game/components";
-  import {
-    startNewWordGame,
-    startWordGame,
-    words,
-  } from "$features/local-word-game/stores";
+  import ContinueGameButtonView from "$lib/components/ContinueGameButtonView.svelte";
   import NewGameAlertDialogView from "$lib/components/NewGameAlertDialogView.svelte";
   import NewGameButtonView from "$lib/components/NewGameButtonView.svelte";
-  import { Button } from "$lib/components/ui/button";
   import { Label } from "$lib/components/ui/label";
+  import { MaxMistakesNativeSelect } from "../components";
+  import { startNewWordGame, startWordGame, words } from "../stores";
   import AnsweringTimeNativeSelect from "./AnsweringTimeNativeSelect.svelte";
 
   let canContinueGame = $derived($words.length > 0);
@@ -27,13 +23,10 @@
     <AnsweringTimeNativeSelect />
   </fieldset>
   <div class="flex gap-2 *:w-25">
-    <Button
-      variant="outline"
+    <ContinueGameButtonView
       disabled={!canContinueGame}
       onclick={startWordGame}
-    >
-      Continue
-    </Button>
+    />
     {#if canContinueGame}
       <NewGameAlertDialogView {startNewWordGame} />
     {:else}
