@@ -27,26 +27,12 @@
 
   const addWordMutation = createMutation(() => ({
     ...addWordMutationOptions,
-  }));
-
-  const incrementMistakesMutation = createMutation(() => ({
-    ...incrementMistakesMutationOptions,
-  }));
-
-  async function handleSubmit(event: Event): Promise<void> {
-    event.preventDefault();
-    setSinglePlayerWordGameError(null);
-    if (userUID === undefined || wordGame === undefined || wordGame === null)
-      return;
-
-    try {
-      await addWordMutation.mutateAsync({
-        newWord,
-        userUID,
-        words,
-      });
+    onSuccess: () => {
       newWord = "";
-    } catch (error) {
+    },
+    onError: (error, { userUID }) => {
+      if (wordGame === undefined || wordGame === null) return;
+
       setSinglePlayerWordGameError(
         (error as { message: string | undefined })?.message ??
           "Something went wrong. Please, try again.",
@@ -58,7 +44,23 @@
           wordGame,
         });
       }
-    }
+    },
+  }));
+
+  const incrementMistakesMutation = createMutation(() => ({
+    ...incrementMistakesMutationOptions,
+  }));
+
+  async function handleSubmit(event: Event): Promise<void> {
+    event.preventDefault();
+    setSinglePlayerWordGameError(null);
+    if (userUID === undefined) return;
+
+    addWordMutation.mutate({
+      newWord,
+      userUID,
+      words,
+    });
   }
 </script>
 
