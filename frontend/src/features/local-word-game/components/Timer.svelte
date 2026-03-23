@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { localWordGame, setRemainingTime } from "../stores";
+  import { localWordGame, setRemainingTime, words } from "../stores";
 
   let interval: number | undefined = $state(undefined);
 
@@ -17,6 +17,6 @@
   });
 </script>
 
-{#if $localWordGame.answeringTime > 0}
+{#if $words.length > 0 && $localWordGame.answeringTime > 0}
   <div class="card-sm">Remaining time: {$localWordGame.remainingTime}</div>
 {/if}
