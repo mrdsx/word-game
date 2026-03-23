@@ -1,5 +1,6 @@
 import { authState } from "$features/auth/stores";
 import { apiFetch } from "$lib/api";
+import { handleHttpStatusCode } from "$lib/firebase/utils";
 import { FirebaseError } from "firebase/app";
 import { setDoc } from "firebase/firestore";
 import { singlePlayerWordGamePreferencesDoc } from "./database/documents";
@@ -27,13 +28,7 @@ export async function resetSinglePlayerWords({
     },
   });
 
-  if (response.status === 401) {
-    throw new FirebaseError("auth/unauthenticated", "Not authenticated");
-  } else if (response.status === 403) {
-    throw new FirebaseError("auth/permission-denied", "Permission denied");
-  } else if (response.status === 400) {
-    throw new FirebaseError("auth/invalid-argument", "Invalid request");
-  }
+  handleHttpStatusCode(response.status);
 }
 
 export async function updateMaxMistakes({

@@ -85,12 +85,14 @@
       `Game over! Your result is ${userScore} ${declinedWord}.`,
     );
 
-    await setDoc(
-      singlePlayerWordGameDoc(userUID),
-      { mistakes: 0 },
-      { merge: true },
-    );
-    await resetSinglePlayerWords({ userUID });
+    await Promise.all([
+      setDoc(
+        singlePlayerWordGameDoc(userUID),
+        { mistakes: 0 },
+        { merge: true },
+      ),
+      resetSinglePlayerWords({ userUID }),
+    ]);
   }
 </script>
 

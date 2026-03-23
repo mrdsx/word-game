@@ -128,10 +128,12 @@ export const startNewGameMutationOptions = {
       mistakes: 0,
     };
 
-    await setDoc(singlePlayerWordGameDoc(userUID), newWordGame, {
-      merge: true,
-    });
-    await resetSinglePlayerWords({ userUID });
+    await Promise.all([
+      setDoc(singlePlayerWordGameDoc(userUID), newWordGame, {
+        merge: true,
+      }),
+      resetSinglePlayerWords({ userUID }),
+    ]);
   },
 } satisfies StartNewGameMutationOptions;
 

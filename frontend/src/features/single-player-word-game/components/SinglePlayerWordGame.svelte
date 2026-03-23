@@ -102,7 +102,10 @@
           {startNewWordGame}
         />
       {:else}
-        <NewGameButtonView disabled={startNewGameMutation.isPending} />
+        <NewGameButtonView
+          disabled={startNewGameMutation.isPending}
+          onclick={startNewWordGame}
+        />
       {/if}
     </div>
   </form>
