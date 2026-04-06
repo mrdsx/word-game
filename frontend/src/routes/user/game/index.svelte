@@ -18,7 +18,6 @@
     SinglePlayerWord,
     SinglePlayerWordGame,
   } from "$features/single-player-word-game/types";
-  import type { Word } from "$features/word-game/types";
   import { declineWord } from "$lib/utils";
   import { onSnapshot, orderBy, query, setDoc } from "firebase/firestore";
 
@@ -63,7 +62,7 @@
       async (snapshot) => {
         const words = snapshot.docs.map(
           (word) => (word.data() as SinglePlayerWord).value,
-        ) as Word[];
+        );
         setSinglePlayerWords(words);
       },
       () => {
