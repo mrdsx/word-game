@@ -1,0 +1,7 @@
+services:
+  firebase:
+    build: firebase
+    ports:
+      - "4000:4000"
+      - "8080:8080"
+      - "9099:9099"
