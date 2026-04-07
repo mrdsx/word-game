@@ -1,3 +1,4 @@
+from functools import lru_cache
 from typing import Any, Literal
 
 from fastapi.middleware.cors import CORSMiddleware
@@ -5,14 +6,17 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from core.lifespan import lifespan
 
-EnvType = Literal["DEV", "PROD"]
+
+
 
 
 class Settings(BaseSettings):
     # backend app settings
     frontend_url: str = "http://localhost:3000"
     api_v1_prefix: str = "/api/v1"
-    environment: EnvType = "DEV"
+    app_env: Literal["dev", "prod"] = "dev"
+
+    firebase_private_key: str
 
     @property
     def fastapi_kwargs(self) -> dict[str, Any]:
@@ -34,12 +38,14 @@ class Settings(BaseSettings):
     def uvicorn_kwargs(self) -> dict[str, Any]:
         return {
             "app": "main:app",
-            "host": "0.0.0.0" if self.environment == "PROD" else "127.0.0.1",
+            "host": "0.0.0.0" if self.app_env == "prod" else "127.0.0.1",
             "port": 8000,
-            "reload": self.environment == "DEV",
+            "reload": self.app_env == "dev",
         }
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 
-settings = Settings()  # type: ignore
+@lru_cache
+def get_settings() -> Settings:
+    return Settings() # pyright: ignore[reportCallIssue]
