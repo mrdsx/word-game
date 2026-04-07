@@ -12,3 +12,6 @@ dependencies = [
     "pydantic-settings>=2.13.1",
     "uvicorn>=0.44.0",
 ]
+
+[project.scripts]
+gen-firebase-data = "scripts.generate_firebase_data:main"
