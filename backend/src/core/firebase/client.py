@@ -1,4 +1,4 @@
-from firebase_admin import initialize_app
+from firebase_admin import initialize_app  # pyright: ignore[reportUnknownVariableType]
 from firebase_admin.credentials import Certificate
 
 from .config import service_account

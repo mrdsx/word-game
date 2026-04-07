@@ -2,12 +2,12 @@ from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from api.dependencies import decode_firebase_token, get_async_firestore
-from core.firebase import AsyncFirestore
-from database.single_player.collections import single_player_words
-from schemas.api import APIResponse
+from src.api.dependencies import decode_firebase_token, get_async_firestore
+from src.core.firebase.types import AsyncFirestore
+from src.database.single_player.collections import single_player_words_collection
+from src.schemas.api import APIResponse
 
-router = APIRouter()
+router = APIRouter(prefix="/single-player")
 
 
 @router.delete(path="/", status_code=status.HTTP_200_OK)
@@ -27,6 +27,6 @@ async def delete_words(
             detail="Email not verified", status_code=status.HTTP_403_FORBIDDEN
         )
 
-    await db.recursive_delete(single_player_words(db, uid))
+    await db.recursive_delete(single_player_words_collection(db, uid))
 
     return APIResponse(data="Successfully deleted words")

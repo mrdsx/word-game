@@ -3,22 +3,12 @@ name = "backend"
 version = "0.1.0"
 description = ""
 authors = [{ name = "mrdsx", email = "andre0.castlegames@gmail.com" }]
+readme = "README.md"
 license = "MIT"
-requires-python = ">=3.12"
+requires-python = ">=3.14"
 dependencies = [
-    "fastapi (>=0.135.1,<0.136.0)",
-    "uvicorn (>=0.42.0,<0.43.0)",
-    "firebase-admin (>=7.2.0,<8.0.0)",
-    "python-dotenv (>=1.2.2,<2.0.0)",
-    "pydantic-settings (>=2.13.1,<3.0.0)",
+    "fastapi>=0.135.3",
+    "firebase-admin>=7.3.0",
+    "pydantic-settings>=2.13.1",
+    "uvicorn>=0.44.0",
 ]
-
-[build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
-
-[tool.poetry]
-package-mode = false
-
-[tool.setuptools]
-license-files = ["../LICENSE"]
