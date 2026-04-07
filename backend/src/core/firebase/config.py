@@ -1,9 +1,8 @@
-
-from core.settings import get_settings
+from src.core.settings import get_settings
 
 settings = get_settings()
 
-service_account = {  # pyright: ignore[reportUnknownVariableType]
+service_account: dict[str, str] = {
     "type": "service_account",
     "project_id": "classic-word-game",
     "private_key": settings.firebase_private_key.replace("\\n", "\n"),
