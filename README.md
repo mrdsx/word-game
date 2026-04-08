@@ -2,7 +2,7 @@
 
 Classic word game is cloud-based web game.
 
-## Local setup
+## Local project setup
 
 ### Prerequisites
 
@@ -32,4 +32,12 @@ Then run these commands:
 ```bash
 uv sync --frozen
 uv run uvicorn src.main:app --reload
+```
+
+### Firebase
+
+Use docker compose to start firebase emulators locally and specify `firebase` as the only running docker container:
+
+```bash
+docker compose up firebase
 ```
