@@ -131,14 +131,14 @@ status: str | None = None  # type hint is needed because `status` is not string 
 
 ## API
 
-- Use camelCase in API request body and response
-- Always return 4xx or 5xx status code if error occures
-- Always validate input/output data
+- Use camelCase in API request body and response.
+- Always return 4xx or 5xx status code if error occures.
+- Always validate input/output data.
 
 ---
 
 ## Formatting & Linting
 
-- Prettier & ESLint (Svelte) - deprecated, expected migration to Biome
-- Ruff (Python) - use VSCode extension for formatting
+- Prettier & ESLint (Svelte) - deprecated, expected migration to Biome.
+- Ruff (Python) - use VSCode extension for formatting.
 
