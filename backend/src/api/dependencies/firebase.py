@@ -2,7 +2,10 @@ from typing import Annotated, Any
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from firebase_admin.auth import InvalidIdTokenError, verify_id_token  # pyright: ignore[reportUnknownVariableType]
+from firebase_admin.auth import (  # pyright: ignore[reportUnknownVariableType]
+    InvalidIdTokenError,
+    verify_id_token,
+)
 from firebase_admin.firestore_async import client as create_firestore_client
 
 from src.core.firebase.types import AsyncFirestore
