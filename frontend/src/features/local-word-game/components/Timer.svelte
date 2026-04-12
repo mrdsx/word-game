@@ -3,5 +3,5 @@
 </script>
 
 {#if $words.length > 0 && $localWordGame.answeringTime > 0}
-  <div class="card-sm">Remaining time: {$localWordGame.remainingTime}</div>
+  <div class="card card-xs">Remaining time: {$localWordGame.remainingTime}</div>
 {/if}
