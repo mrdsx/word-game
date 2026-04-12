@@ -9,8 +9,7 @@
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
     "format": "prettier --write .",
-    "gen-routes ": "sv-router",
-    "emulators:start": "firebase emulators:start --import=./firebase-data --export-on-exit=./firebase-data"
+    "gen-routes ": "sv-router"
   },
   "dependencies": {
     "@internationalized/date": "^3.12.0",
