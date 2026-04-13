@@ -24,5 +24,6 @@ if (import.meta.env.MODE === "development") {
   connectFunctionsEmulator(functions, "127.0.0.1", 5001);
 }
 
+export { REQUIRES_RECENT_LOGIN } from "./constants";
 export { actionCodeSettings } from "./config";
 export { mapFirebaseErrorCode } from "./utils";

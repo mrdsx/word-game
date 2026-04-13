@@ -9,7 +9,15 @@
 }
 
 .card-sm {
-  @apply border-border bg-card rounded-md border px-4 py-2;
+  @apply rounded-md px-4 py-4;
+}
+
+.card-xs {
+  @apply rounded-md px-4 py-2;
+}
+
+.card-destructive {
+  @apply border-destructive/60;
 }
 
 .firebase-emulator-warning {

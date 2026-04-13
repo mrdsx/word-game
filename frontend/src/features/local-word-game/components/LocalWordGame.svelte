@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import { WordsArea } from "../components";
   import {
     localWordGame,
@@ -11,8 +11,6 @@
   import StartGameForm from "./StartGameForm.svelte";
   import Timer from "./Timer.svelte";
 
-  let interval: number | undefined = $state(undefined);
-
   onMount(() => {
     if ($words.length > 0) {
       setIsTimerActive(true);
@@ -20,16 +18,17 @@
   });
 
   $effect(() => {
-    if ($localWordGame.answeringTime <= 0) {
-      return;
-    }
     if (!$localWordGame.isTimerActive) {
-      clearInterval(interval);
       return;
     }
 
-    interval = setInterval(() => {
-      setRemainingTime(localWordGame.get().remainingTime - 1);
+    const interval = setInterval(() => {
+      const time = localWordGame.get().remainingTime;
+      if (time > 0) {
+        setRemainingTime(time - 1);
+      } else {
+        clearInterval(interval);
+      }
     }, 1000);
 
     return () => {

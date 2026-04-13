@@ -24,22 +24,27 @@
   let submitError: string | null = $state(null);
 
   $effect(() => {
-    const isGameLost =
+    const isTimerOver =
       $localWordGame.remainingTime <= 0 && $localWordGame.answeringTime > 0;
-    if (isGameLost) {
+    if (isTimerOver) {
       handleGameOver();
     }
   });
 
   const addWordMutation = createMutation(() => ({
     ...addWordMutationOptions,
+    onMutate: () => {
+      setIsTimerActive(false);
+    },
+    onSettled: () => {
+      setIsTimerActive(true);
+    },
     onSuccess: () => {
       if (input !== null) input.value = "";
       resetMistakes();
       setRemainingTime($localWordGame.answeringTime);
     },
     onError: (error) => {
-      setIsTimerActive(true);
       submitError =
         error?.message ?? "Something went wrong. Please, try again.";
 
